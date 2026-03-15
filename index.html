@@ -73,6 +73,36 @@
     .rbfs-gt { background: rgba(74,222,128,0.08); }
     .rbfs-ny { background: rgba(248,113,113,0.08); }
 
+    /* ── Spinning Wheel ──────────────────────────────────────────────── */
+    .wheel-outer { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 16px 0; }
+    .wheel-wrap { position: relative; display: inline-flex; align-items: center; }
+    .wheel-canvas-el { max-width: min(90vw,480px); border-radius: 50%; display: block; cursor: pointer; }
+    .wheel-pointer { font-size: 2.4rem; color: #111; margin-left: -8px; filter: drop-shadow(2px 2px 3px rgba(0,0,0,.4)); line-height: 1; flex-shrink: 0; }
+    /* ── Name Wall ───────────────────────────────────────────────────── */
+    .namewall-grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 4px; }
+    .nw-tile { padding: 14px 20px; border-radius: 6px; font-size: 1.15rem; font-weight: 700; color: #000; transition: transform .1s,box-shadow .1s,opacity .2s; }
+    .nw-tile.nw-hi { transform: scale(1.08); box-shadow: 0 0 0 3px white,0 0 16px rgba(0,0,0,.4); z-index: 1; position: relative; }
+    .nw-tile.nw-win { transform: scale(1.12); box-shadow: 0 0 0 4px white,0 0 28px rgba(0,0,0,.45); animation: winnerPulse .5s ease-out; z-index: 2; position: relative; }
+    .nw-tile.nw-dim { opacity: .3; }
+    /* ── No-repeat / Pool status ─────────────────────────────────────── */
+    .no-repeat-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 0 2px; }
+    .no-repeat-label { font-size: 0.88rem; color: #475569; font-weight: 500; }
+    .btn-pool-reset { font-size: 0.8rem; font-weight: 600; padding: 4px 11px; border-radius: 6px; border: 1.5px solid #94a3b8; background: white; color: #475569; cursor: pointer; transition: all .15s; white-space: nowrap; }
+    .btn-pool-reset:hover { border-color: #4f46e5; color: #4f46e5; background: #ede9fe; }
+    .pool-status { font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: #dcfce7; color: #15803d; margin-top: 4px; display: inline-block; }
+    .pool-status.all-done { background: #fef3c7; color: #92400e; }
+    /* ── Picker fullscreen overlay ───────────────────────────────────── */
+    .pkfs-overlay { display: none; position: fixed; inset: 0; background: linear-gradient(160deg,#0f0c29,#1e1b4b,#312e81); z-index: 9995; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 60px 32px 48px; overflow-y: auto; }
+    .pkfs-overlay.active { display: flex; }
+    .pkfs-close { position: absolute; top: 20px; right: 24px; background: rgba(255,255,255,.12); border: none; color: white; font-size: 1.1rem; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+    .pkfs-close:hover { background: rgba(255,255,255,.22); }
+    /* ── Wheel fullscreen overlay ────────────────────────────────────── */
+    .wfs-overlay { display: none; position: fixed; inset: 0; background: #111; z-index: 9994; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 56px 24px 32px; overflow-y: auto; }
+    .wfs-overlay.active { display: flex; }
+    /* ── Namewall fullscreen overlay ─────────────────────────────────── */
+    .nwfs-overlay { display: none; position: fixed; inset: 0; background: #1a1a1a; z-index: 9993; flex-direction: column; align-items: center; gap: 16px; padding: 56px 24px 40px; overflow-y: auto; }
+    .nwfs-overlay.active { display: flex; }
+
     /* Nav tabs */
     .nav-tabs { display: flex; gap: 2px; overflow-x: auto; }
     .nav-tab { padding: 10px 22px; color: rgba(255,255,255,0.7); cursor: pointer; border: none; background: none; font-weight: 600; font-size: 0.88rem; font-family: inherit; border-bottom: 3px solid transparent; transition: all .15s; border-radius: 8px 8px 0 0; white-space: nowrap; }
@@ -108,13 +138,10 @@
 
     .bulk-area textarea { width: 100%; height: 90px; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.88rem; font-family: inherit; resize: vertical; outline: none; color: #475569; margin-top: 14px; }
     .bulk-area textarea:focus { border-color: #4f46e5; }
-    .bulk-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .bulk-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 
     .student-list { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; max-height: 280px; overflow-y: auto; padding: 2px 2px 4px; }
     .student-chip { display: flex; align-items: center; gap: 6px; background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 999px; padding: 5px 12px 5px 14px; font-size: 0.88rem; font-weight: 500; color: #374151; transition: background .15s; }
-    .student-chip.sep-highlight  { background: #fef3c7; border-color: #fbbf24; }
-    .student-chip.tog-highlight  { background: #dcfce7; border-color: #4ade80; }
-    .student-chip.both-highlight { background: #ede9fe; border-color: #a78bfa; }
     .student-chip button { background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 1rem; line-height: 1; padding: 0 2px; transition: color .15s; }
     .student-chip button:hover { color: #ef4444; }
     .empty-state { text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 16px 0 4px; width: 100%; }
@@ -156,9 +183,6 @@
     .results-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
     .error-banner { background: #fee2e2; border: 1.5px solid #fca5a5; color: #991b1b; border-radius: 10px; padding: 12px 16px; font-size: 0.9rem; font-weight: 500; margin-bottom: 12px; display: none; }
 
-    .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; font-size: 0.8rem; color: #475569; }
-    .legend-item { display: flex; align-items: center; gap: 5px; }
-    .legend-dot { width: 10px; height: 10px; border-radius: 3px; border: 1.5px solid; flex-shrink: 0; }
 
     /* ── Google Classroom ───────────────────────────────────────────────────── */
     .gc-intro { font-size: 0.9rem; color: #64748b; margin-bottom: 16px; line-height: 1.5; }
@@ -396,15 +420,12 @@
       <textarea id="bulkInput" placeholder="Or paste a list here — one name per line…"></textarea>
       <div class="bulk-actions">
         <button class="btn btn-secondary" onclick="bulkAdd()">Add All from List</button>
+        <button class="btn btn-secondary" onclick="bulkAddFirstNames('bulkInput')">First Names Only</button>
+        <button class="btn btn-secondary" onclick="bulkAddFirstNamesInitial('bulkInput')">First Name + Initial</button>
         <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
       </div>
     </div>
     <div class="student-list" id="studentList"></div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#fef3c7;border-color:#fbbf24"></div> Separation rule</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;border-color:#4ade80"></div> Together rule</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ede9fe;border-color:#a78bfa"></div> Both</div>
-    </div>
   </div>
 
   <!-- Number of Groups -->
@@ -529,9 +550,40 @@
     </div>
   </div>
 
+  <!-- Students (mirrored from Groups tab) -->
   <div class="card">
-    <div class="card-title">🎲 Random Name Picker</div>
-    <p style="font-size:0.9rem;color:#64748b;margin-bottom:20px;">Randomly select a student to answer a question. Students are pulled from your Groups list.</p>
+    <div class="card-title">
+      <span>Students</span>
+      <span class="badge" id="studentCount2">0 / 100</span>
+    </div>
+    <div class="input-row">
+      <input type="text" id="studentInput2" placeholder="Type a student name and press Enter…" />
+      <button class="btn btn-primary" onclick="addStudentFromInput2()">Add</button>
+    </div>
+    <div class="bulk-area">
+      <textarea id="bulkInput2" placeholder="Or paste a list here — one name per line…"></textarea>
+      <div class="bulk-actions">
+        <button class="btn btn-secondary" onclick="bulkAdd2()">Add All from List</button>
+        <button class="btn btn-secondary" onclick="bulkAddFirstNames('bulkInput2')">First Names Only</button>
+        <button class="btn btn-secondary" onclick="bulkAddFirstNamesInitial('bulkInput2')">First Name + Initial</button>
+        <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+    <div class="student-list" id="studentList2"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🎲 Random Name Picker <button class="btn-timer-fs" onclick="openPickerFs()" style="margin-left:auto;">⛶ Full Screen</button></div>
+    <p style="font-size:0.9rem;color:#64748b;margin-bottom:6px;">Randomly select a student to answer a question. Students are pulled from your Groups list.</p>
+    <div class="no-repeat-row">
+      <label class="toggle-switch">
+        <input type="checkbox" id="noRepeatPicker" onchange="toggleNoRepeat('noRepeatPicker')" />
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="no-repeat-label">Remove picked names — auto-resets when everyone's had a turn</span>
+      <button class="btn-pool-reset pool-reset-btn" onclick="resetPickedPool()" style="display:none;">↺ Reset All</button>
+    </div>
+    <div id="pickerPoolStatus" class="pool-status" style="display:none;margin-bottom:8px;"></div>
 
     <div id="pickerNoStudents" class="picker-no-students">
       ⚠️ No students added yet — go to the <strong>Groups</strong> tab and add students first.
@@ -556,6 +608,59 @@
       </div>
     </div>
   </div>
+  <!-- ─── Spinning Wheel card ──────────────────────────────────────── -->
+  <div class="card" id="wheelCard">
+    <div class="card-title">🎡 Spinning Wheel <button class="btn-timer-fs" onclick="openWheelFs()" style="margin-left:auto;">⛶ Full Screen</button></div>
+    <p style="font-size:0.9rem;color:#64748b;margin-bottom:6px;">Spin the wheel and land on a random student.</p>
+    <div class="no-repeat-row">
+      <label class="toggle-switch">
+        <input type="checkbox" id="noRepeatWheel" onchange="toggleNoRepeat('noRepeatWheel')" />
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="no-repeat-label">Remove picked names — auto-resets when everyone's had a turn</span>
+      <button class="btn-pool-reset pool-reset-btn" onclick="resetPickedPool()" style="display:none;">↺ Reset All</button>
+    </div>
+    <div id="wheelPoolStatus" class="pool-status" style="display:none;margin-bottom:8px;"></div>
+    <div id="wheelNoStudents" class="picker-no-students">
+      ⚠️ No students added yet — go to the <strong>Groups</strong> tab and add students first.
+    </div>
+    <div id="wheelMain" style="display:none;">
+      <div class="wheel-outer">
+        <div class="wheel-wrap">
+          <canvas id="wheelCanvas" width="460" height="460" class="wheel-canvas-el"></canvas>
+          <div class="wheel-pointer">◀</div>
+        </div>
+        <div id="wheelWinner" class="winner-banner" style="display:none;max-width:500px;width:100%;"></div>
+        <button class="btn-spin" id="wheelBtn" onclick="spinWheel()">🎡 Spin the Wheel!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Name Wall card ──────────────────────────────────────────────── -->
+  <div class="card" id="namewallCard">
+    <div class="card-title">🎯 Name Wall <button class="btn-timer-fs" onclick="openNamwallFs()" style="margin-left:auto;">⛶ Full Screen</button></div>
+    <p style="font-size:0.9rem;color:#64748b;margin-bottom:6px;">All names shown as tiles — randomly highlights and picks a student.</p>
+    <div class="no-repeat-row">
+      <label class="toggle-switch">
+        <input type="checkbox" id="noRepeatNamwall" onchange="toggleNoRepeat('noRepeatNamwall')" />
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="no-repeat-label">Remove picked names — auto-resets when everyone's had a turn</span>
+      <button class="btn-pool-reset pool-reset-btn" onclick="resetPickedPool()" style="display:none;">↺ Reset All</button>
+    </div>
+    <div id="namewallPoolStatus" class="pool-status" style="display:none;margin-bottom:8px;"></div>
+    <div id="namewallNoStudents" class="picker-no-students">
+      ⚠️ No students added yet — go to the <strong>Groups</strong> tab and add students first.
+    </div>
+    <div id="namewallMain" style="display:none;">
+      <div class="namewall-grid" id="namewallGrid"></div>
+      <div id="namewallWinner" class="winner-banner" style="display:none;margin-top:8px;"></div>
+      <div style="margin-top:12px;">
+        <button class="btn-spin" id="namewallBtn" onclick="spinNamewall()">🎯 Pick!</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 </div>
 
@@ -954,6 +1059,39 @@
 </div>
 </div>
 
+<!-- ═══════════ PICKER FULLSCREEN OVERLAY ═══════════ -->
+<div id="pkfsOverlay" class="pkfs-overlay">
+  <button class="pkfs-close" onclick="closePickerFs()">✕ Close</button>
+  <div class="spinner-stage" style="max-width:600px;width:100%;">
+    <div class="spinner-label">Selected Student</div>
+    <div class="spinner-name" id="pkfsName">?</div>
+  </div>
+  <div id="pkfsWinner" class="winner-banner" style="display:none;max-width:600px;width:100%;"></div>
+  <div id="pkfsPoolStatus" class="pool-status" style="display:none;"></div>
+  <button class="btn-spin" id="pkfsBtn" onclick="spinPicker()">🎲 Pick a Student!</button>
+</div>
+
+<!-- ═══════════ WHEEL FULLSCREEN OVERLAY ═══════════ -->
+<div id="wfsOverlay" class="wfs-overlay">
+  <button class="pkfs-close" onclick="closeWheelFs()">✕ Close</button>
+  <div class="wheel-wrap">
+    <canvas id="wfsCanvas" width="560" height="560" class="wheel-canvas-el" style="max-width:min(80vw,560px);"></canvas>
+    <div class="wheel-pointer" style="font-size:2.8rem;">◀</div>
+  </div>
+  <div id="wfsWinner" class="winner-banner" style="display:none;max-width:600px;width:100%;"></div>
+  <div id="wfsPoolStatus" class="pool-status" style="display:none;"></div>
+  <button class="btn-spin" id="wfsBtn" onclick="spinWheel()">🎡 Spin the Wheel!</button>
+</div>
+
+<!-- ═══════════ NAMEWALL FULLSCREEN OVERLAY ═══════════ -->
+<div id="nwfsOverlay" class="nwfs-overlay">
+  <button class="pkfs-close" onclick="closeNamwallFs()">✕ Close</button>
+  <div class="namewall-grid" id="nwfsGrid" style="max-width:960px;width:100%;justify-content:center;"></div>
+  <div id="nwfsWinner" class="winner-banner" style="display:none;max-width:600px;width:100%;"></div>
+  <div id="nwfsPoolStatus" class="pool-status" style="display:none;"></div>
+  <button class="btn-spin" id="nwfsBtn" onclick="spinNamewall()">🎯 Pick!</button>
+</div>
+
 <!-- ═══════════ RUBRIC FULLSCREEN OVERLAY ═══════════ -->
 <div id="rbfsOverlay" class="rbfs-overlay">
   <div class="rbfs-top">
@@ -1089,6 +1227,8 @@ let separations = [];
 let togethers   = [];
 let teacherMode = false;
 let pickerHistory = [];
+let noRepeatMode = false;
+let pickedPool = [];
 let lastGroups  = null;
 
 const GROUP_COLORS = [
@@ -1146,11 +1286,39 @@ function addStudentFromInput() {
   if (addStudent(inp.value)) { inp.value = ''; render(); }
   inp.focus();
 }
+function addStudentFromInput2() {
+  const inp = document.getElementById('studentInput2');
+  if (addStudent(inp.value)) { inp.value = ''; render(); }
+  inp.focus();
+}
 function bulkAdd() {
   const ta = document.getElementById('bulkInput');
   ta.value.split('\n').map(normalizeName).filter(Boolean).forEach(n => addStudent(n));
   ta.value = '';
   render();
+}
+function bulkAdd2() {
+  const ta = document.getElementById('bulkInput2');
+  ta.value.split('\n').map(normalizeName).filter(Boolean).forEach(n => addStudent(n));
+  ta.value = '';
+  render();
+}
+function bulkAddFirstNames(taId) {
+  const ta = document.getElementById(taId);
+  ta.value.split('\n').map(l => {
+    const n = normalizeName(l); if (!n) return null;
+    return normalizeName(n.split(/\s+/)[0]);
+  }).filter(Boolean).forEach(n => addStudent(n));
+  ta.value = ''; render();
+}
+function bulkAddFirstNamesInitial(taId) {
+  const ta = document.getElementById(taId);
+  ta.value.split('\n').map(l => {
+    const n = normalizeName(l); if (!n) return null;
+    const parts = n.split(/\s+/);
+    return parts.length >= 2 && parts[1] ? parts[0] + ' ' + parts[1][0].toUpperCase() + '.' : parts[0];
+  }).filter(Boolean).forEach(n => addStudent(n));
+  ta.value = ''; render();
 }
 function removeStudent(name) {
   students    = students.filter(s=>s!==name);
@@ -1257,15 +1425,25 @@ function render() {
   if(students.length===0) { list.innerHTML='<p class="empty-state">No students added yet.</p>'; }
   else {
     students.forEach(name=>{
-      const iS=sepS.has(name), iT=togS.has(name);
-      const cls=iS&&iT?'both-highlight':iS?'sep-highlight':iT?'tog-highlight':'';
       const chip=document.createElement('div');
-      chip.className='student-chip'+(cls?' '+cls:'');
+      chip.className='student-chip';
       chip.innerHTML=`<span>${name}</span><button onclick="removeStudent('${esc(name)}')" title="Remove">×</button>`;
       list.appendChild(chip);
     });
   }
   document.getElementById('studentCount').textContent=`${students.length} / 100`;
+  // Sync picker-tab student list
+  const list2=document.getElementById('studentList2');
+  if(list2){
+    list2.innerHTML='';
+    if(students.length===0) list2.innerHTML='<p class="empty-state">No students added yet.</p>';
+    else students.forEach(name=>{
+      const chip=document.createElement('div'); chip.className='student-chip';
+      chip.innerHTML=`<span>${name}</span><button onclick="removeStudent('${esc(name)}')" title="Remove">×</button>`;
+      list2.appendChild(chip);
+    });
+  }
+  const sc2=document.getElementById('studentCount2'); if(sc2) sc2.textContent=`${students.length} / 100`;
   [['sepA','— Student A —'],['sepB','— Student B —'],['togA','— Student A —'],['togB','— Student B —']].forEach(([id,ph])=>{
     const sel=document.getElementById(id); const val=sel.value;
     sel.innerHTML=`<option value="">${ph}</option>`;
@@ -1285,19 +1463,60 @@ function render() {
   if(!teacherMode && (separations.length>0||togethers.length>0)) banner.style.display='flex';
   else banner.style.display='none';
   updateHint();
+  refreshPicker();
 }
 function renderResults(groups) {
   lastGroups = groups;
   const card=document.getElementById('resultsCard'), grid=document.getElementById('resultsGrid');
-  grid.innerHTML='';
-  groups.forEach((members,i)=>{
-    const c=GROUP_COLORS[i%GROUP_COLORS.length], div=document.createElement('div');
-    div.className='group-card'; div.style.background=c.bg; div.style.borderColor=c.border;
-    const items=members.length===0?'<li style="color:#94a3b8;font-size:0.85rem;">Empty</li>':members.map(m=>`<li><span style="background:${c.dot}"></span>${m}</li>`).join('');
-    div.innerHTML=`<h3 style="color:${c.text}">Group ${i+1} <span style="font-weight:400;text-transform:none;letter-spacing:0;">(${members.length})</span></h3><ul>${items}</ul>`;
-    grid.appendChild(div);
-  });
   card.style.display='block'; card.scrollIntoView({behavior:'smooth',block:'start'});
+
+  const allNames=groups.flat(), groupSizes=groups.map(g=>g.length);
+  const btns=card.querySelectorAll('button');
+  btns.forEach(b=>b.disabled=true);
+
+  // Build card DOM once — only update <ul> innerHTML per frame (no flash)
+  grid.innerHTML='';
+  const gEls=groups.map((members,i)=>{
+    const c=GROUP_COLORS[i%GROUP_COLORS.length];
+    const div=document.createElement('div');
+    div.className='group-card'; div.style.background=c.bg; div.style.borderColor=c.border;
+    const h=document.createElement('h3'); h.style.color=c.text;
+    h.innerHTML=`Group ${i+1} <span style="font-weight:400;text-transform:none;letter-spacing:0;">(${members.length})</span>`;
+    const ul=document.createElement('ul');
+    div.appendChild(h); div.appendChild(ul);
+    grid.appendChild(div);
+    return {div,ul,c};
+  });
+
+  function renderList(ul, members, c) {
+    ul.innerHTML=members.length===0
+      ?'<li style="color:#94a3b8;font-size:0.85rem;">Empty</li>'
+      :members.map(m=>`<li><span style="background:${c.dot}"></span>${m}</li>`).join('');
+  }
+
+  function randFrame() {
+    const s=[...allNames].sort(()=>Math.random()-0.5); let idx=0;
+    return groupSizes.map(sz=>{ const g=s.slice(idx,idx+sz); idx+=sz; return g; });
+  }
+
+  function draw(frame) {
+    frame.forEach((members,i)=>renderList(gEls[i].ul, members, gEls[i].c));
+  }
+
+  // Fast → slow → stop on final
+  const delays=[60,65,70,80,90,105,125,150,185,230,290,370,470,580];
+  let step=0;
+  function tick() {
+    if(step<delays.length){
+      draw(randFrame());
+      setTimeout(tick, delays[step]); step++;
+    } else {
+      draw(groups);
+      btns.forEach(b=>b.disabled=false);
+    }
+  }
+  draw(randFrame());
+  setTimeout(tick, 60);
 }
 function buildGrpfsGrid(groups) {
   const grid=document.getElementById('grpfsGrid');
@@ -1332,52 +1551,277 @@ function copyResults() {
 
 // ═════════════════════ NAME PICKER ═══════════════════════════
 function refreshPicker() {
-  const hasSt=students.length>0;
-  document.getElementById('pickerNoStudents').style.display=hasSt?'none':'block';
-  document.getElementById('pickerMain').style.display=hasSt?'block':'none';
-  if(hasSt && document.getElementById('spinnerName').textContent==='?') {
+  const has=students.length>0;
+  document.getElementById('pickerNoStudents').style.display=has?'none':'block';
+  document.getElementById('pickerMain').style.display=has?'block':'none';
+  if(has&&document.getElementById('spinnerName').textContent==='?')
     document.getElementById('spinnerName').textContent=students[Math.floor(Math.random()*students.length)];
-  }
+  refreshWheel();
+  refreshNamewall();
+  renderPoolStatus();
 }
-function spinPicker() {
-  if(students.length===0) return;
-  const winner=students[Math.floor(Math.random()*students.length)];
-  const display=document.getElementById('spinnerName');
-  const btn=document.getElementById('spinBtn');
-  const banner=document.getElementById('winnerBanner');
-  btn.disabled=true; banner.style.display='none';
-  display.classList.remove('winner-glow');
+function refreshWheel() {
+  const has=students.length>0;
+  document.getElementById('wheelNoStudents').style.display=has?'none':'block';
+  document.getElementById('wheelMain').style.display=has?'block':'none';
+  if(has){ const p=getPool(); drawWheel(p.length?p:students,wheelRotation,'wheelCanvas'); }
+}
+function refreshNamewall() {
+  const has=students.length>0;
+  document.getElementById('namewallNoStudents').style.display=has?'none':'block';
+  document.getElementById('namewallMain').style.display=has?'block':'none';
+  if(has) buildNamewallGrid('namewallGrid');
+}
 
-  const delays=[60,70,80,90,100,120,150,190,240,300,380,480];
-  let step=0;
+// ── No-repeat helpers ──────────────────────────────────────────
+function getPool() {
+  if(!noRepeatMode) return [...students];
+  const avail=students.filter(s=>!pickedPool.includes(s));
+  return avail;
+}
+function afterPick(winner) {
+  pickerHistory.unshift(winner);
+  if(pickerHistory.length>10) pickerHistory.pop();
+  renderHistory();
+  if(!noRepeatMode) return;
+  pickedPool.push(winner);
+  renderPoolStatus();
+  if(students.filter(s=>!pickedPool.includes(s)).length===0)
+    setTimeout(()=>{ pickedPool=[]; renderPoolStatus(); }, 2500);
+}
+function renderPoolStatus() {
+  const on=noRepeatMode&&students.length>0;
+  const remaining=students.filter(s=>!pickedPool.includes(s)).length;
+  const allDone=on&&remaining===0;
+  const text=allDone?'🔄 Everyone picked! Resetting…':`🟢 ${remaining} of ${students.length} remaining`;
+  const cls='pool-status'+(allDone?' all-done':'');
+  ['pickerPoolStatus','wheelPoolStatus','namewallPoolStatus','pkfsPoolStatus','wfsPoolStatus','nwfsPoolStatus'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.style.display=on?'inline-block':'none'; el.textContent=text; el.className=cls; }
+  });
+}
+function toggleNoRepeat(src) {
+  noRepeatMode=document.getElementById(src).checked;
+  ['noRepeatPicker','noRepeatWheel','noRepeatNamwall'].forEach(id=>{ const el=document.getElementById(id); if(el) el.checked=noRepeatMode; });
+  document.querySelectorAll('.pool-reset-btn').forEach(b=>b.style.display=noRepeatMode?'inline-block':'none');
+  pickedPool=[];
+  renderPoolStatus();
+}
+function resetPickedPool() {
+  pickedPool=[];
+  renderPoolStatus();
+  const p=getPool();
+  const names=p.length?p:students;
+  drawWheel(names,wheelRotation,'wheelCanvas');
+  if(document.getElementById('wfsOverlay').classList.contains('active')) drawWheel(names,wheelRotation,'wfsCanvas');
+  buildNamewallGrid('namewallGrid');
+  buildNamewallGrid('nwfsGrid');
+}
+
+// ── Picker spin ────────────────────────────────────────────────
+function spinPicker() {
+  let pool=getPool();
+  if(pool.length===0){ pickedPool=[]; renderPoolStatus(); pool=[...students]; }
+  if(pool.length===0) return;
+  const winner=pool[Math.floor(Math.random()*pool.length)];
+  const display=document.getElementById('spinnerName');
+  const fsDisplay=document.getElementById('pkfsName');
+  const btn=document.getElementById('spinBtn'), fsBtn=document.getElementById('pkfsBtn');
+  const banner=document.getElementById('winnerBanner'), fsBanner=document.getElementById('pkfsWinner');
+  btn.disabled=true; if(fsBtn) fsBtn.disabled=true;
+  banner.style.display='none'; if(fsBanner) fsBanner.style.display='none';
+  display.classList.remove('winner-glow'); if(fsDisplay) fsDisplay.classList.remove('winner-glow');
+  const delays=[60,70,80,90,100,120,150,190,240,300,380,480]; let step=0;
   function tick() {
-    if(step<delays.length) {
-      const rand=students[Math.floor(Math.random()*students.length)];
+    if(step<delays.length){
+      const rand=pool[Math.floor(Math.random()*pool.length)];
       display.classList.add('flash');
-      setTimeout(()=>{ display.textContent=rand; display.classList.remove('flash'); },30);
-      setTimeout(tick, delays[step]);
-      step++;
+      setTimeout(()=>{ display.textContent=rand; display.classList.remove('flash'); if(fsDisplay) fsDisplay.textContent=rand; },30);
+      setTimeout(tick,delays[step]); step++;
     } else {
-      display.textContent=winner;
-      display.classList.add('winner-glow');
-      banner.textContent=`🎉 ${winner} 🎉`;
-      banner.style.display='block';
-      btn.disabled=false;
-      btn.textContent='🎲 Pick Again!';
-      // Add to history
-      pickerHistory.unshift(winner);
-      if(pickerHistory.length>10) pickerHistory.pop();
-      renderHistory();
+      display.textContent=winner; if(fsDisplay) fsDisplay.textContent=winner;
+      display.classList.add('winner-glow'); if(fsDisplay) fsDisplay.classList.add('winner-glow');
+      const msg=`🎉 ${winner} 🎉`;
+      banner.textContent=msg; banner.style.display='block';
+      if(fsBanner){ fsBanner.textContent=msg; fsBanner.style.display='block'; }
+      btn.disabled=false; if(fsBtn) fsBtn.disabled=false;
+      btn.textContent='🎲 Pick Again!'; if(fsBtn) fsBtn.textContent='🎲 Pick Again!';
+      afterPick(winner);
     }
   }
   tick();
 }
+
+// ── Spinning Wheel ─────────────────────────────────────────────
+const WHEEL_COLORS_ARR=['#e53935','#1e88e5','#43a047','#fb8c00','#8e24aa','#00acc1','#f4511e','#e91e63','#00897b','#fdd835','#5e35b1','#039be5','#d81b60','#7cb342','#3949ab','#ffb300','#00838f','#c0ca33','#6d4c41','#546e7a'];
+let wheelRotation=0, wheelSpinning=false;
+
+function drawWheel(names,rotation,canvasId){
+  const canvas=document.getElementById(canvasId); if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, r=Math.min(W,H)/2-3;
+  const n=names.length; if(n===0) return;
+  const sa=(2*Math.PI)/n;
+  ctx.clearRect(0,0,W,H);
+  for(let i=0;i<n;i++){
+    const s=rotation+i*sa, e=s+sa, m=s+sa/2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,s,e); ctx.closePath();
+    ctx.fillStyle=WHEEL_COLORS_ARR[i%WHEEL_COLORS_ARR.length]; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+    const arcH=(2*Math.PI/n)*(r*0.62); const fs=Math.max(9,Math.min(Math.floor(arcH*0.62),Math.floor(r*0.13)));
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(m);
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillStyle='#000'; ctx.font=`bold ${fs}px Arial,sans-serif`;
+    ctx.fillText(names[i],r-10,0); ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI); ctx.strokeStyle='#222'; ctx.lineWidth=4; ctx.stroke();
+  const cr=Math.max(28,r*0.1);
+  ctx.beginPath(); ctx.arc(cx,cy,cr,0,2*Math.PI);
+  ctx.fillStyle='#e53935'; ctx.fill(); ctx.strokeStyle='#b71c1c'; ctx.lineWidth=3; ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.font=`bold ${Math.max(10,Math.round(cr*0.55))}px Arial,sans-serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('Spin!',cx,cy);
+}
+
+function spinWheel(){
+  if(wheelSpinning) return;
+  let pool=getPool();
+  if(pool.length===0){ pickedPool=[]; renderPoolStatus(); pool=[...students]; }
+  if(pool.length===0) return;
+  wheelSpinning=true;
+  const btn=document.getElementById('wheelBtn'), fsBtn=document.getElementById('wfsBtn');
+  const banner=document.getElementById('wheelWinner'), fsBanner=document.getElementById('wfsWinner');
+  if(btn) btn.disabled=true; if(fsBtn) fsBtn.disabled=true;
+  if(banner) banner.style.display='none'; if(fsBanner) fsBanner.style.display='none';
+  const n=pool.length, sa=(2*Math.PI)/n;
+  const wi=Math.floor(Math.random()*n), winner=pool[wi];
+  const winCenter=wi*sa+sa/2;
+  const base=((-(winCenter))%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+  const minSpins=5+Math.floor(Math.random()*3);
+  const minTarget=wheelRotation+minSpins*2*Math.PI;
+  let target=base; while(target<minTarget) target+=2*Math.PI;
+  const startR=wheelRotation, delta=target-startR;
+  const dur=4000+Math.random()*800, t0=performance.now();
+  const fsOvl=document.getElementById('wfsOverlay');
+  function animate(now){
+    const t=Math.min((now-t0)/dur,1), e=1-Math.pow(1-t,4);
+    wheelRotation=startR+delta*e;
+    drawWheel(pool,wheelRotation,'wheelCanvas');
+    if(fsOvl.classList.contains('active')) drawWheel(pool,wheelRotation,'wfsCanvas');
+    if(t<1){ requestAnimationFrame(animate); return; }
+    wheelRotation=target;
+    drawWheel(pool,wheelRotation,'wheelCanvas');
+    if(fsOvl.classList.contains('active')) drawWheel(pool,wheelRotation,'wfsCanvas');
+    const msg=`🎉 ${winner} 🎉`;
+    if(banner){banner.textContent=msg; banner.style.display='block';}
+    if(fsBanner){fsBanner.textContent=msg; fsBanner.style.display='block';}
+    if(btn){btn.disabled=false; btn.textContent='🎡 Spin Again!';}
+    if(fsBtn){fsBtn.disabled=false; fsBtn.textContent='🎡 Spin Again!';}
+    wheelSpinning=false;
+    afterPick(winner);
+    if(noRepeatMode) setTimeout(()=>{ const np=getPool(); drawWheel(np.length?np:students,wheelRotation,'wheelCanvas'); if(fsOvl.classList.contains('active')) drawWheel(np.length?np:students,wheelRotation,'wfsCanvas'); },1500);
+  }
+  requestAnimationFrame(animate);
+}
+function openWheelFs(){
+  const wb=document.getElementById('wheelWinner'), wf=document.getElementById('wfsWinner');
+  if(wf){wf.textContent=wb.textContent; wf.style.display=wb.style.display;}
+  const sb=document.getElementById('wheelBtn'), fb=document.getElementById('wfsBtn');
+  if(fb){fb.textContent=sb.textContent; fb.disabled=sb.disabled;}
+  renderPoolStatus();
+  document.getElementById('wfsOverlay').classList.add('active'); document.body.style.overflow='hidden';
+  const p=getPool(); setTimeout(()=>drawWheel(p.length?p:students,wheelRotation,'wfsCanvas'),50);
+}
+function closeWheelFs(){ document.getElementById('wfsOverlay').classList.remove('active'); document.body.style.overflow=''; }
+
+// ── Name Wall ──────────────────────────────────────────────────
+const WALL_COLORS=['#43a047','#e53935','#d81b60','#fdd835','#00acc1','#1e88e5','#fb8c00','#8e24aa','#00897b','#f4511e','#3949ab','#c0ca33','#039be5','#6d4c41','#5e35b1','#ffb300','#00838f','#e91e63','#7cb342','#546e7a'];
+
+function buildNamewallGrid(gid){
+  const grid=document.getElementById(gid); if(!grid) return;
+  grid.innerHTML='';
+  students.forEach((name,i)=>{
+    const d=document.createElement('div');
+    d.className='nw-tile'+(noRepeatMode&&pickedPool.includes(name)?' nw-dim':'');
+    d.style.background=WALL_COLORS[i%WALL_COLORS.length];
+    d.dataset.idx=i; d.textContent=name;
+    grid.appendChild(d);
+  });
+}
+
+function spinNamewall(){
+  buildNamewallGrid('namewallGrid'); buildNamewallGrid('nwfsGrid');
+  let pool=getPool();
+  if(pool.length===0){ pickedPool=[]; renderPoolStatus(); pool=[...students]; }
+  if(pool.length===0) return;
+  const winner=pool[Math.floor(Math.random()*pool.length)];
+  const btn=document.getElementById('namewallBtn'), fsBtn=document.getElementById('nwfsBtn');
+  const banner=document.getElementById('namewallWinner'), fsBanner=document.getElementById('nwfsWinner');
+  if(btn) btn.disabled=true; if(fsBtn) fsBtn.disabled=true;
+  if(banner) banner.style.display='none'; if(fsBanner) fsBanner.style.display='none';
+  ['namewallGrid','nwfsGrid'].forEach(g=>document.querySelectorAll(`#${g} .nw-tile`).forEach(t=>t.classList.remove('nw-hi','nw-win')));
+  const delays=[80,80,100,100,120,140,160,200,250,300,380,480,600];
+  let step=0, lastIdx=-1;
+  function getTile(idx,g){ for(const t of document.querySelectorAll(`#${g} .nw-tile`)) if(parseInt(t.dataset.idx)===idx) return t; return null; }
+  function tick(){
+    if(lastIdx>=0) ['namewallGrid','nwfsGrid'].forEach(g=>{ const t=getTile(lastIdx,g); if(t) t.classList.remove('nw-hi'); });
+    if(step<delays.length){
+      const rand=pool[Math.floor(Math.random()*pool.length)];
+      const idx=students.indexOf(rand);
+      ['namewallGrid','nwfsGrid'].forEach(g=>{ const t=getTile(idx,g); if(t) t.classList.add('nw-hi'); });
+      lastIdx=idx; setTimeout(tick,delays[step]); step++;
+    } else {
+      const wi=students.indexOf(winner);
+      ['namewallGrid','nwfsGrid'].forEach(g=>{ const t=getTile(wi,g); if(t) t.classList.add('nw-win'); });
+      const msg=`🎉 ${winner} 🎉`;
+      if(banner){banner.textContent=msg; banner.style.display='block';}
+      if(fsBanner){fsBanner.textContent=msg; fsBanner.style.display='block';}
+      if(btn){btn.disabled=false; btn.textContent='🎯 Pick Again!';}
+      if(fsBtn){fsBtn.disabled=false; fsBtn.textContent='🎯 Pick Again!';}
+      afterPick(winner);
+      setTimeout(()=>{ buildNamewallGrid('namewallGrid'); buildNamewallGrid('nwfsGrid'); },1500);
+    }
+  }
+  tick();
+}
+function openNamwallFs(){
+  buildNamewallGrid('nwfsGrid');
+  const wb=document.getElementById('namewallWinner'), nf=document.getElementById('nwfsWinner');
+  if(nf){nf.textContent=wb.textContent; nf.style.display=wb.style.display;}
+  const sb=document.getElementById('namewallBtn'), fb=document.getElementById('nwfsBtn');
+  if(fb){fb.textContent=sb.textContent; fb.disabled=sb.disabled;}
+  renderPoolStatus();
+  document.getElementById('nwfsOverlay').classList.add('active'); document.body.style.overflow='hidden';
+}
+function closeNamwallFs(){ document.getElementById('nwfsOverlay').classList.remove('active'); document.body.style.overflow=''; }
+
 function renderHistory() {
   const list=document.getElementById('historyList');
-  if(pickerHistory.length===0) { list.innerHTML='<span style="color:#94a3b8;font-size:0.85rem;">No one picked yet.</span>'; return; }
+  if(pickerHistory.length===0){ list.innerHTML='<span style="color:#94a3b8;font-size:0.85rem;">No one picked yet.</span>'; return; }
   list.innerHTML=pickerHistory.map((n,i)=>`<span class="history-chip">${i===0?'<strong>'+n+'</strong>':n}</span>`).join('');
 }
-function clearHistory() { pickerHistory=[]; renderHistory(); }
+function clearHistory(){ pickerHistory=[]; renderHistory(); }
+
+// ── Picker fullscreen ──────────────────────────────────────────
+function openPickerFs(){
+  const sn=document.getElementById('spinnerName'), wb=document.getElementById('winnerBanner'), sb=document.getElementById('spinBtn');
+  document.getElementById('pkfsName').textContent=sn.textContent;
+  const pw=document.getElementById('pkfsWinner'); pw.textContent=wb.textContent; pw.style.display=wb.style.display;
+  const pb=document.getElementById('pkfsBtn'); pb.textContent=sb.textContent; pb.disabled=sb.disabled;
+  renderPoolStatus();
+  document.getElementById('pkfsOverlay').classList.add('active'); document.body.style.overflow='hidden';
+}
+function closePickerFs(){ document.getElementById('pkfsOverlay').classList.remove('active'); document.body.style.overflow=''; }
+
+// ── Drum fullscreen ────────────────────────────────────────────
+function openDrumFs(){
+  const dd=document.getElementById('drumDisplay'), wb=document.getElementById('drumWinner'), db=document.getElementById('drumBtn');
+  document.getElementById('dmfsDisplay').textContent=dd.textContent;
+  const dw=document.getElementById('dmfsWinner'); dw.textContent=wb.textContent; dw.style.display=wb.style.display;
+  const dfb=document.getElementById('dmfsBtn'); dfb.textContent=db.textContent; dfb.disabled=db.disabled;
+  renderPoolStatus();
+  document.getElementById('dmfsOverlay').classList.add('active'); document.body.style.overflow='hidden';
+}
+function closeDrumFs(){ document.getElementById('dmfsOverlay').classList.remove('active'); document.body.style.overflow=''; }
 
 // ═════════════════════ STOPWATCH ═════════════════════════════
 let swRunning=false, swStart=0, swElapsed=0, swInterval=null, swLaps=[];
@@ -1864,6 +2308,7 @@ function initSolutions(){
 
 // ═══════════════════ INIT ═══════════════════════════════════
 document.getElementById('studentInput').addEventListener('keydown',e=>{if(e.key==='Enter')addStudentFromInput();});
+document.getElementById('studentInput2').addEventListener('keydown',e=>{if(e.key==='Enter')addStudentFromInput2();});
 document.getElementById('groupCount').addEventListener('input',updateHint);
 render();
 initSolutions();
