@@ -399,6 +399,11 @@
       </div>
       <div class="gc-signed-in-row">
         <select id="courseSelect" onchange="gcCourseChanged()"><option value="">— Select a class —</option></select>
+        <select id="gcNameFormat" class="btn btn-secondary" style="padding:8px 12px;font-size:0.88rem;cursor:pointer;">
+          <option value="full">Full Name</option>
+          <option value="first">First Name Only</option>
+          <option value="initial">First Name + Initial</option>
+        </select>
         <button class="btn btn-primary" id="gcLoadBtn" onclick="gcLoadRoster()" disabled>Load Roster</button>
       </div>
       <p class="gc-multi-hint">💡 Each load <strong>adds</strong> to the student list. Use <em>Clear All</em> to start fresh.</p>
@@ -543,6 +548,11 @@
       </div>
       <div class="gc-signed-in-row">
         <select id="gc2CourseSelect" onchange="gc2CourseChanged()"><option value="">— Select a class —</option></select>
+        <select id="gc2NameFormat" class="btn btn-secondary" style="padding:8px 12px;font-size:0.88rem;cursor:pointer;">
+          <option value="full">Full Name</option>
+          <option value="first">First Name Only</option>
+          <option value="initial">First Name + Initial</option>
+        </select>
         <button class="btn btn-primary" id="gc2LoadBtn" onclick="gc2LoadRoster()" disabled>Load Roster</button>
       </div>
       <p class="gc-multi-hint">💡 Each load <strong>adds</strong> to the student list. Use <em>Clear All</em> on the Groups tab to start fresh.</p>
@@ -2050,8 +2060,16 @@ async function gcLoadRoster() {
     let roster=[],pt='';
     do { const u=`https://classroom.googleapis.com/v1/courses/${cid}/students?pageSize=200`+(pt?'&pageToken='+pt:''); const d=await(await fetch(u,{headers:{Authorization:'Bearer '+gcAccessToken}})).json(); if(d.error) throw new Error(d.error.message); (d.students||[]).forEach(s=>roster.push(s)); pt=d.nextPageToken||''; } while(pt);
     if(!roster.length){gcSetStatus('error','No students found.');document.getElementById('gcLoadBtn').disabled=false;return;}
+    const fmt=document.getElementById('gcNameFormat')?.value||'full';
     let added=0,skipped=0;
-    roster.forEach(s=>{const n=s.profile?.name?.fullName;if(n&&addStudent(n))added++;else skipped++;});
+    roster.forEach(s=>{
+      let n=s.profile?.name?.fullName; if(!n) return;
+      n=normalizeName(n); if(!n) return;
+      const parts=n.split(/\s+/);
+      if(fmt==='first') n=parts[0];
+      else if(fmt==='initial') n=parts.length>=2?parts[0]+' '+parts[1][0].toUpperCase()+'.':parts[0];
+      if(addStudent(n)) added++; else skipped++;
+    });
     render(); gcSetStatus('success',`Added ${added} student${added!==1?'s':''} from "${cn}".`+(skipped>0?` (${skipped} skipped)`:''));
   } catch(e){gcSetStatus('error','Could not load students: '+e.message);}
   document.getElementById('gcLoadBtn').disabled=false;
@@ -2093,6 +2111,7 @@ async function gc2LoadRoster() {
   const gc2Sel=document.getElementById('gc2CourseSelect');
   const mainSel=document.getElementById('courseSelect');
   mainSel.value=gc2Sel.value;
+  document.getElementById('gcNameFormat').value=document.getElementById('gc2NameFormat').value;
   document.getElementById('gc2LoadBtn').disabled=true;
   document.getElementById('gc2Status').textContent='Loading…'; document.getElementById('gc2Status').className='gc-status loading';
   await gcLoadRoster();
