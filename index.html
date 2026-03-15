@@ -1086,7 +1086,7 @@
   <button class="pkfs-close" onclick="closeWheelFs()">✕ Close</button>
   <div class="wheel-wrap">
     <canvas id="wfsCanvas" width="560" height="560" class="wheel-canvas-el" style="max-width:min(80vw,560px);"></canvas>
-    <div class="wheel-pointer" style="font-size:2.8rem;">◀</div>
+    <div class="wheel-pointer" style="font-size:2.8rem;color:#fff;">◀</div>
   </div>
   <div id="wfsWinner" class="winner-banner" style="display:none;max-width:600px;width:100%;"></div>
   <div id="wfsPoolStatus" class="pool-status" style="display:none;"></div>
@@ -1498,10 +1498,29 @@ function renderResults(groups) {
     return {div,ul,c};
   });
 
-  function renderList(ul, members, c) {
+  // Also build fullscreen grid cards once if overlay is open
+  const fsGrid=document.getElementById('grpfsGrid');
+  const fsActive=document.getElementById('grpfsOverlay').classList.contains('active');
+  let fsEls=[];
+  if(fsActive){
+    fsGrid.innerHTML='';
+    fsEls=groups.map((members,i)=>{
+      const c=GROUP_COLORS[i%GROUP_COLORS.length];
+      const div=document.createElement('div');
+      div.className='grpfs-card'; div.style.background=c.bg; div.style.borderColor=c.border; div.style.color=c.text;
+      const h=document.createElement('h3');
+      h.innerHTML=`Group ${i+1}<span class="grpfs-num">${members.length}</span>`;
+      const ul=document.createElement('ul');
+      div.appendChild(h); div.appendChild(ul);
+      fsGrid.appendChild(div);
+      return {ul,c};
+    });
+  }
+
+  function renderList(ul, members, c, fs) {
     ul.innerHTML=members.length===0
-      ?'<li style="color:#94a3b8;font-size:0.85rem;">Empty</li>'
-      :members.map(m=>`<li><span style="background:${c.dot}"></span>${m}</li>`).join('');
+      ?(fs?'<li style="opacity:0.5;">Empty</li>':'<li style="color:#94a3b8;font-size:0.85rem;">Empty</li>')
+      :members.map(m=>fs?`<li>${m}</li>`:`<li><span style="background:${c.dot}"></span>${m}</li>`).join('');
   }
 
   function randFrame() {
@@ -1510,7 +1529,10 @@ function renderResults(groups) {
   }
 
   function draw(frame) {
-    frame.forEach((members,i)=>renderList(gEls[i].ul, members, gEls[i].c));
+    frame.forEach((members,i)=>{
+      renderList(gEls[i].ul, members, gEls[i].c, false);
+      if(fsEls[i]) renderList(fsEls[i].ul, members, fsEls[i].c, true);
+    });
   }
 
   // Fast → slow → stop on final
@@ -1551,7 +1573,6 @@ function closeGroupsFs() {
 }
 function grpfsShuffle() {
   generate();
-  if(lastGroups) buildGrpfsGrid(lastGroups);
 }
 function copyResults() {
   const cards=document.querySelectorAll('.group-card'); let text='';
