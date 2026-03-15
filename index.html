@@ -3,479 +3,356 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Student Group Assigner</title>
+  <title>Thinking Classrooms Toolkit</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #f0f4f8;
-      color: #1a202c;
-      min-height: 100vh;
-    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; }
 
-    header {
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: white;
-      padding: 28px 32px;
-      text-align: center;
-    }
-    header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
-    header p { margin-top: 6px; opacity: 0.85; font-size: 0.95rem; }
+    /* ── Header ────────────────────────────────────────────────────────────── */
+    header { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 20px 32px 0; }
+    .header-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 16px; }
+    .header-brand h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; }
+    .header-brand p  { opacity: 0.8; font-size: 0.88rem; margin-top: 3px; }
 
-    .container {
-      max-width: 900px;
-      margin: 32px auto;
-      padding: 0 20px;
-      display: grid;
-      gap: 24px;
-    }
+    /* Teacher toggle */
+    .teacher-toggle { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+    .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: rgba(255,255,255,0.25); border-radius: 24px; transition: .25s; }
+    .toggle-slider::before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .25s; }
+    .toggle-switch input:checked + .toggle-slider { background: rgba(255,255,255,0.55); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+    .teacher-badge { font-size: 0.72rem; background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 999px; }
 
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 28px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    }
+    /* Nav tabs */
+    .nav-tabs { display: flex; gap: 2px; overflow-x: auto; }
+    .nav-tab { padding: 10px 22px; color: rgba(255,255,255,0.7); cursor: pointer; border: none; background: none; font-weight: 600; font-size: 0.88rem; font-family: inherit; border-bottom: 3px solid transparent; transition: all .15s; border-radius: 8px 8px 0 0; white-space: nowrap; }
+    .nav-tab:hover { color: white; background: rgba(255,255,255,0.1); }
+    .nav-tab.active { color: white; border-bottom-color: white; background: rgba(255,255,255,0.12); }
 
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #4f46e5;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .card-title .badge {
-      background: #ede9fe;
-      color: #4f46e5;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 2px 10px;
-      border-radius: 999px;
-    }
+    /* Tab pages */
+    .tab-page { display: none; }
+    .tab-page.active { display: block; }
 
-    /* Student Input */
-    .input-row { display: flex; gap: 10px; }
-    .input-row input {
-      flex: 1;
-      padding: 10px 14px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      transition: border-color 0.2s;
-      outline: none;
-    }
-    .input-row input:focus { border-color: #4f46e5; }
+    /* ── Shared layout ──────────────────────────────────────────────────────── */
+    .container { max-width: 900px; margin: 32px auto; padding: 0 20px; display: grid; gap: 24px; }
+    .card { background: white; border-radius: 16px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .card-title { font-size: 1.1rem; font-weight: 700; color: #4f46e5; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .badge { background: #ede9fe; color: #4f46e5; font-size: 0.75rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
 
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
+    .btn { padding: 10px 20px; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all .15s; font-family: inherit; }
     .btn:active { transform: scale(0.97); }
-    .btn-primary { background: #4f46e5; color: white; }
+    .btn-primary   { background: #4f46e5; color: white; }
     .btn-primary:hover { background: #4338ca; }
     .btn-secondary { background: #f1f5f9; color: #475569; }
     .btn-secondary:hover { background: #e2e8f0; }
-    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-danger    { background: #fee2e2; color: #dc2626; }
     .btn-danger:hover { background: #fecaca; }
-    .btn-success { background: #22c55e; color: white; font-size: 1rem; padding: 14px 32px; width: 100%; border-radius: 12px; }
+    .btn-success   { background: #22c55e; color: white; font-size: 1rem; padding: 14px 32px; width: 100%; border-radius: 12px; }
     .btn-success:hover { background: #16a34a; }
     .btn-success:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
 
-    .bulk-area { margin-top: 14px; }
-    .bulk-area textarea {
-      width: 100%;
-      height: 90px;
-      padding: 10px 14px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 0.88rem;
-      font-family: inherit;
-      resize: vertical;
-      outline: none;
-      color: #475569;
-    }
+    /* ── Groups tab ─────────────────────────────────────────────────────────── */
+    .input-row { display: flex; gap: 10px; }
+    .input-row input { flex: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.95rem; transition: border-color .2s; outline: none; }
+    .input-row input:focus { border-color: #4f46e5; }
+
+    .bulk-area textarea { width: 100%; height: 90px; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.88rem; font-family: inherit; resize: vertical; outline: none; color: #475569; margin-top: 14px; }
     .bulk-area textarea:focus { border-color: #4f46e5; }
     .bulk-actions { display: flex; gap: 8px; margin-top: 8px; }
 
-    .student-list {
-      margin-top: 16px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      max-height: 280px;
-      overflow-y: auto;
-      padding: 2px 2px 4px;
-    }
-    .student-chip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: #f1f5f9;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 999px;
-      padding: 5px 12px 5px 14px;
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: #374151;
-      transition: background 0.15s;
-    }
-    .student-chip.sep-highlight   { background: #fef3c7; border-color: #fbbf24; }
-    .student-chip.tog-highlight   { background: #dcfce7; border-color: #4ade80; }
-    .student-chip.both-highlight  { background: #ede9fe; border-color: #a78bfa; }
-    .student-chip button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #94a3b8;
-      font-size: 1rem;
-      line-height: 1;
-      padding: 0 2px;
-      border-radius: 50%;
-      transition: color 0.15s;
-    }
+    .student-list { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; max-height: 280px; overflow-y: auto; padding: 2px 2px 4px; }
+    .student-chip { display: flex; align-items: center; gap: 6px; background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 999px; padding: 5px 12px 5px 14px; font-size: 0.88rem; font-weight: 500; color: #374151; transition: background .15s; }
+    .student-chip.sep-highlight  { background: #fef3c7; border-color: #fbbf24; }
+    .student-chip.tog-highlight  { background: #dcfce7; border-color: #4ade80; }
+    .student-chip.both-highlight { background: #ede9fe; border-color: #a78bfa; }
+    .student-chip button { background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 1rem; line-height: 1; padding: 0 2px; transition: color .15s; }
     .student-chip button:hover { color: #ef4444; }
+    .empty-state { text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 16px 0 4px; width: 100%; }
 
-    .empty-state {
-      text-align: center;
-      color: #94a3b8;
-      font-size: 0.9rem;
-      padding: 16px 0 4px;
-      width: 100%;
-    }
-
-    /* Groups setting */
     .groups-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     .groups-row label { font-weight: 600; font-size: 0.95rem; color: #374151; }
-    .number-control {
-      display: flex;
-      align-items: center;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .number-control button {
-      background: #f8fafc;
-      border: none;
-      width: 38px;
-      height: 38px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: #4f46e5;
-      font-weight: 700;
-      transition: background 0.15s;
-    }
+    .number-control { display: flex; align-items: center; border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .number-control button { background: #f8fafc; border: none; width: 38px; height: 38px; font-size: 1.2rem; cursor: pointer; color: #4f46e5; font-weight: 700; transition: background .15s; }
     .number-control button:hover { background: #ede9fe; }
-    .number-control input {
-      width: 52px;
-      text-align: center;
-      border: none;
-      border-left: 1.5px solid #e2e8f0;
-      border-right: 1.5px solid #e2e8f0;
-      font-size: 1rem;
-      font-weight: 700;
-      color: #1a202c;
-      outline: none;
-      padding: 8px 0;
-    }
+    .number-control input { width: 52px; text-align: center; border: none; border-left: 1.5px solid #e2e8f0; border-right: 1.5px solid #e2e8f0; font-size: 1rem; font-weight: 700; color: #1a202c; outline: none; padding: 8px 0; }
     .group-hint { font-size: 0.85rem; color: #64748b; }
 
-    /* Rule rows (shared by both separation + together cards) */
-    .rule-selects {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .rule-selects select {
-      flex: 1;
-      min-width: 140px;
-      padding: 10px 12px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-      background: white;
-      color: #1a202c;
-      cursor: pointer;
-    }
-    .rule-selects select:focus { border-color: #4f46e5; }
+    /* Rules hidden banner */
+    .rules-hidden-banner { background: #fef9c3; border: 1.5px solid #fde047; border-radius: 12px; padding: 12px 16px; font-size: 0.88rem; color: #713f12; font-weight: 500; display: flex; align-items: center; gap: 8px; }
 
-    .op-badge {
-      font-size: 0.8rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 999px;
-      flex-shrink: 0;
-    }
+    .rule-selects { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .rule-selects select { flex: 1; min-width: 140px; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; font-family: inherit; outline: none; background: white; color: #1a202c; cursor: pointer; }
+    .rule-selects select:focus { border-color: #4f46e5; }
+    .op-badge { font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
     .op-badge.sep { color: #ef4444; background: #fee2e2; }
     .op-badge.tog { color: #16a34a; background: #dcfce7; }
-
     .rules-list { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
-
-    .rule-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 0.9rem;
-    }
+    .rule-item { display: flex; align-items: center; justify-content: space-between; border-radius: 10px; padding: 10px 14px; font-size: 0.9rem; }
     .rule-item.sep { background: #fff7ed; border: 1.5px solid #fed7aa; }
     .rule-item.tog { background: #f0fdf4; border: 1.5px solid #86efac; }
-
-    .rule-item .names {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-    }
+    .rule-item .names { display: flex; align-items: center; gap: 8px; font-weight: 600; }
     .rule-item.sep .names { color: #92400e; }
     .rule-item.tog .names { color: #166534; }
-    .rule-item .names .sym {
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
+    .rule-item .names .sym { font-size: 0.75rem; font-weight: 700; }
     .rule-item.sep .names .sym { color: #ef4444; }
     .rule-item.tog .names .sym { color: #16a34a; }
 
-    /* Results */
-    .results-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
-      margin-top: 4px;
-    }
-    .group-card {
-      border-radius: 14px;
-      padding: 18px;
-      border: 2px solid transparent;
-    }
-    .group-card h3 {
-      font-size: 0.85rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 12px;
-      opacity: 0.85;
-    }
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 4px; }
+    .group-card { border-radius: 14px; padding: 18px; border: 2px solid transparent; }
+    .group-card h3 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; opacity: 0.85; }
     .group-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .group-card ul li {
-      font-size: 0.92rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .group-card ul li::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
+    .group-card ul li { font-size: 0.92rem; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+    .group-card ul li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
     .results-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+    .error-banner { background: #fee2e2; border: 1.5px solid #fca5a5; color: #991b1b; border-radius: 10px; padding: 12px 16px; font-size: 0.9rem; font-weight: 500; margin-bottom: 12px; display: none; }
 
-    .error-banner {
-      background: #fee2e2;
-      border: 1.5px solid #fca5a5;
-      color: #991b1b;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      margin-bottom: 12px;
-      display: none;
-    }
-
-    /* Legend */
-    .legend {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-      font-size: 0.8rem;
-      color: #475569;
-    }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; font-size: 0.8rem; color: #475569; }
     .legend-item { display: flex; align-items: center; gap: 5px; }
-    .legend-dot {
-      width: 10px; height: 10px;
-      border-radius: 3px;
-      border: 1.5px solid;
-      flex-shrink: 0;
-    }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; border: 1.5px solid; flex-shrink: 0; }
 
-    /* ── Google Classroom Card ─────────────────────────────────────── */
-    .gc-intro {
-      font-size: 0.9rem;
-      color: #64748b;
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-
-    .btn-google {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: white;
-      color: #374151;
-      border: 1.5px solid #d1d5db;
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-    .btn-google:hover { background: #f9fafb; border-color: #9ca3af; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    /* ── Google Classroom ───────────────────────────────────────────────────── */
+    .gc-intro { font-size: 0.9rem; color: #64748b; margin-bottom: 16px; line-height: 1.5; }
+    .btn-google { display: inline-flex; align-items: center; gap: 10px; background: white; color: #374151; border: 1.5px solid #d1d5db; border-radius: 10px; padding: 10px 20px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all .15s; box-shadow: 0 1px 4px rgba(0,0,0,0.08); font-family: inherit; }
+    .btn-google:hover { background: #f9fafb; border-color: #9ca3af; }
     .btn-google svg { flex-shrink: 0; }
-
-    .gc-signed-in-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-    .gc-signed-in-row select {
-      flex: 1;
-      min-width: 200px;
-      padding: 10px 12px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-      background: white;
-      color: #1a202c;
-      cursor: pointer;
-    }
+    .gc-signed-in-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .gc-signed-in-row select { flex: 1; min-width: 200px; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; font-family: inherit; outline: none; background: white; color: #1a202c; cursor: pointer; }
     .gc-signed-in-row select:focus { border-color: #4f46e5; }
-
-    .gc-user-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 14px;
-      font-size: 0.88rem;
-      color: #475569;
-    }
-    .gc-user-row img {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
+    .gc-user-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 0.88rem; color: #475569; }
+    .gc-user-row img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
     .gc-user-row strong { color: #1a202c; }
-
-    .gc-status {
-      font-size: 0.85rem;
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin-top: 10px;
-      display: none;
-    }
+    .gc-status { font-size: 0.85rem; padding: 8px 12px; border-radius: 8px; margin-top: 10px; display: none; }
     .gc-status.loading { background: #eff6ff; color: #1d4ed8; display: block; }
     .gc-status.success { background: #f0fdf4; color: #166534; display: block; }
     .gc-status.error   { background: #fee2e2; color: #991b1b; display: block; }
-
-    .gc-multi-hint {
-      font-size: 0.82rem;
-      color: #64748b;
-      margin-top: 8px;
-    }
-
-    .btn-signout {
-      background: none;
-      border: 1.5px solid #e2e8f0;
-      color: #64748b;
-      border-radius: 8px;
-      padding: 6px 14px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
+    .gc-multi-hint { font-size: 0.82rem; color: #64748b; margin-top: 8px; }
+    .btn-signout { background: none; border: 1.5px solid #e2e8f0; color: #64748b; border-radius: 8px; padding: 6px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all .15s; font-family: inherit; }
     .btn-signout:hover { border-color: #ef4444; color: #ef4444; background: #fff1f2; }
 
+    /* ── Name Picker tab ────────────────────────────────────────────────────── */
+    .picker-center { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 16px 0; }
+    .spinner-stage { width: 100%; max-width: 500px; background: linear-gradient(135deg, #1e1b4b, #312e81); border-radius: 20px; padding: 40px 30px; text-align: center; box-shadow: 0 8px 32px rgba(79,70,229,0.35); position: relative; overflow: hidden; }
+    .spinner-stage::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.07) 0%, transparent 70%); }
+    .spinner-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 20px; }
+    .spinner-name { font-size: 3rem; font-weight: 800; color: white; min-height: 72px; display: flex; align-items: center; justify-content: center; transition: opacity 0.08s; letter-spacing: -1px; text-shadow: 0 2px 20px rgba(0,0,0,0.4); word-break: break-word; padding: 0 10px; }
+    .spinner-name.flash { opacity: 0.3; }
+    .spinner-name.winner-glow { color: #fde047; text-shadow: 0 0 30px rgba(253,224,71,0.7); animation: winnerPulse 0.5s ease-out; }
+    @keyframes winnerPulse { 0% { transform: scale(0.8); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+    .winner-banner { font-size: 1.4rem; font-weight: 700; color: #4f46e5; background: linear-gradient(135deg, #ede9fe, #ddd6fe); border: 2px solid #a78bfa; border-radius: 16px; padding: 16px 32px; text-align: center; animation: fadeInUp 0.4s ease-out; width: 100%; max-width: 500px; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .btn-spin { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; border: none; border-radius: 14px; padding: 16px 48px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all .2s; box-shadow: 0 4px 16px rgba(79,70,229,0.4); font-family: inherit; }
+    .btn-spin:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(79,70,229,0.5); }
+    .btn-spin:active { transform: scale(0.97); }
+    .btn-spin:disabled { background: #94a3b8; box-shadow: none; cursor: not-allowed; transform: none; }
+    .picker-no-students { text-align: center; color: #64748b; font-size: 0.95rem; padding: 20px; }
+    .picked-history { margin-top: 8px; }
+    .picked-history-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .history-chip { background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 999px; padding: 4px 12px; font-size: 0.82rem; color: #475569; font-weight: 500; }
+
+    /* ── Timer tab ──────────────────────────────────────────────────────────── */
+    .timer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 640px) { .timer-grid { grid-template-columns: 1fr; } }
+    .timer-display { font-size: 3.5rem; font-weight: 800; color: #1a202c; text-align: center; letter-spacing: 2px; font-variant-numeric: tabular-nums; margin: 16px 0; font-family: 'Courier New', monospace; }
+    .timer-display.warning { color: #dc2626; animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0.4; } }
+    .timer-display.done { color: #16a34a; }
+    .timer-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .timer-btns .btn { min-width: 80px; }
+    .countdown-setter { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+    .countdown-setter label { font-size: 0.85rem; font-weight: 600; color: #64748b; }
+    .time-unit { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .time-unit span { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+    .time-input-ctrl { display: flex; align-items: center; border: 1.5px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    .time-input-ctrl button { background: #f8fafc; border: none; width: 30px; height: 36px; font-size: 1rem; cursor: pointer; color: #4f46e5; font-weight: 700; transition: background .15s; }
+    .time-input-ctrl button:hover { background: #ede9fe; }
+    .time-input-ctrl input { width: 44px; text-align: center; border: none; border-left: 1.5px solid #e2e8f0; border-right: 1.5px solid #e2e8f0; font-size: 1rem; font-weight: 700; color: #1a202c; outline: none; padding: 6px 0; }
+    .colon-sep { font-size: 1.5rem; font-weight: 700; color: #94a3b8; margin: 0 2px; padding-bottom: 2px; }
+    .preset-btns { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .btn-preset { background: #f1f5f9; color: #475569; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 5px 12px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all .15s; font-family: inherit; }
+    .btn-preset:hover { background: #ede9fe; border-color: #a78bfa; color: #4f46e5; }
+
+    /* ── Math Questions tab ─────────────────────────────────────────────────── */
+    .grade-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+    .grade-tab { padding: 8px 20px; border: 2px solid #e2e8f0; border-radius: 10px; background: white; font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all .15s; color: #64748b; font-family: inherit; }
+    .grade-tab:hover { border-color: #a78bfa; color: #4f46e5; }
+    .grade-tab.active { background: #4f46e5; color: white; border-color: #4f46e5; }
+    .grade-content { display: none; }
+    .grade-content.active { display: block; }
+    .q-card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #a78bfa; margin-bottom: 16px; }
+    .q-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+    .q-tag { font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: #ede9fe; color: #6d28d9; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+    .q-text { font-size: 1rem; line-height: 1.65; color: #1a202c; flex: 1; }
+    .q-text strong { font-weight: 400; color: inherit; }
+    .q-timer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: #f8fafc; border-radius: 10px; padding: 10px 14px; margin-top: 12px; }
+    .q-timer-display { font-size: 1.3rem; font-weight: 800; font-family: 'Courier New', monospace; color: #1a202c; min-width: 70px; }
+    .q-timer-display.warning { color: #dc2626; }
+    .q-timer-display.done    { color: #16a34a; }
+    .q-timer-set { display: flex; align-items: center; gap: 6px; }
+    .q-timer-set label { font-size: 0.8rem; font-weight: 600; color: #64748b; }
+    .q-timer-set select { padding: 5px 8px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.85rem; outline: none; cursor: pointer; font-family: inherit; }
+    .q-timer-set select:focus { border-color: #4f46e5; }
+    .q-timer-btns { display: flex; gap: 6px; }
+    .q-timer-btns .btn { padding: 6px 14px; font-size: 0.82rem; }
+    .q-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .btn-qfs { background: #f1f5f9; color: #475569; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 6px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
+    .btn-qfs:hover { background: #ede9fe; border-color: #a78bfa; color: #4f46e5; }
+    .btn-sol { background: #fefce8; color: #713f12; border: 1.5px solid #fde047; border-radius: 8px; padding: 6px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
+    .btn-sol:hover { background: #fef9c3; }
+    .solution-body { display: none; background: #fefce8; border: 1.5px solid #fde047; border-radius: 10px; padding: 14px 16px; margin-top: 10px; font-size: 0.88rem; color: #713f12; line-height: 1.65; }
+    .solution-body.open { display: block; animation: fadeInUp 0.2s ease-out; }
+    .solution-body ol { margin-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+
+    /* ── Question Fullscreen Overlay ── */
+    .qfs-overlay { display: none; position: fixed; inset: 0; background: linear-gradient(160deg,#0f0c29,#302b63,#24243e); z-index: 9999; flex-direction: column; align-items: center; justify-content: flex-start; padding: 70px 48px 48px; overflow-y: auto; }
+    .qfs-overlay.active { display: flex; }
+    .qfs-tag { font-size: 0.78rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; background: rgba(167,139,250,0.2); color: #c4b5fd; padding: 5px 16px; border-radius: 999px; border: 1.5px solid rgba(167,139,250,0.3); margin-bottom: 28px; flex-shrink: 0; }
+    .qfs-question { font-size: 1.45rem; font-weight: 400; color: white; line-height: 1.75; max-width: 820px; text-align: center; margin-bottom: 40px; }
+    .qfs-question strong { font-weight: 400; }
+    .qfs-timer-display { font-size: 6rem; font-weight: 900; color: white; font-family: 'Courier New', monospace; letter-spacing: 6px; text-align: center; margin-bottom: 20px; }
+    .qfs-timer-display.warning { color: #f87171; animation: blink 1s step-end infinite; }
+    .qfs-timer-display.done { color: #4ade80; }
+    @media (max-width: 600px) { .qfs-timer-display { font-size: 3.5rem; } .qfs-question { font-size: 1.1rem; } }
+    .qfs-presets { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+    .btn-qfs-preset { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 7px 16px; font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
+    .btn-qfs-preset:hover { background: rgba(255,255,255,0.2); color: white; }
+    .qfs-btns { display: flex; gap: 12px; justify-content: center; }
+    .btn-qfs-primary { background: #4f46e5; color: white; border: none; border-radius: 12px; padding: 13px 38px; font-size: 1.05rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s; }
+    .btn-qfs-primary:hover { background: #4338ca; }
+    .btn-qfs-secondary { background: rgba(255,255,255,0.1); color: white; border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 13px 28px; font-size: 1.05rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s; }
+    .btn-qfs-secondary:hover { background: rgba(255,255,255,0.2); }
+    .qfs-sol-section { margin-top: 32px; max-width: 720px; width: 100%; }
+    .btn-qfs-sol { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 18px; font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
+    .btn-qfs-sol:hover { background: rgba(255,255,255,0.18); color: white; }
+    .qfs-sol-body { display: none; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 16px 20px; font-size: 0.95rem; color: rgba(255,255,255,0.85); line-height: 1.7; margin-top: 10px; }
+    .qfs-sol-body.open { display: block; animation: fadeInUp 0.2s ease-out; }
+    .qfs-sol-body ol { margin-left: 18px; display: flex; flex-direction: column; gap: 5px; }
+    .fs-close-btn { position: fixed; top: 18px; right: 22px; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.2); color: white; border-radius: 10px; padding: 8px 16px; font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: inherit; z-index: 10000; transition: background .15s; }
+    .fs-close-btn:hover { background: rgba(255,255,255,0.22); }
+
+    /* ── Timer Fullscreen Overlay ── */
+    .tfs-overlay { display: none; position: fixed; inset: 0; background: #0f0f1a; z-index: 9998; flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
+    .tfs-overlay.active { display: flex; }
+    .tfs-display { font-size: 8rem; font-weight: 900; color: white; font-family: 'Courier New', monospace; letter-spacing: 8px; text-align: center; }
+    .tfs-display.warning { color: #ef4444; animation: blink 1s step-end infinite; }
+    .tfs-display.done { color: #4ade80; }
+    @media (max-width: 600px) { .tfs-display { font-size: 4rem; } }
+    .tfs-presets { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .tfs-btns { display: flex; gap: 12px; justify-content: center; }
+    .btn-tfs-preset { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.75); border: 1.5px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 8px 18px; font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
+    .btn-tfs-preset:hover { background: rgba(255,255,255,0.2); color: white; }
+    .btn-tfs-primary { background: #4f46e5; color: white; border: none; border-radius: 12px; padding: 14px 42px; font-size: 1.1rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s; }
+    .btn-tfs-primary:hover { background: #4338ca; }
+    .btn-tfs-secondary { background: rgba(255,255,255,0.1); color: white; border: 1.5px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 14px 32px; font-size: 1.1rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s; }
+    .btn-tfs-secondary:hover { background: rgba(255,255,255,0.2); }
+    .btn-tfs-close { position: absolute; top: 18px; right: 22px; background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2); color: white; border-radius: 10px; padding: 8px 16px; font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s; }
+    .btn-tfs-close:hover { background: rgba(255,255,255,0.2); }
+    .btn-timer-fs { background: #f1f5f9; color: #475569; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; margin-left: auto; }
+    .btn-timer-fs:hover { background: #ede9fe; border-color: #a78bfa; color: #4f46e5; }
+
+    /* ── Rubric tab ── */
+    .rubric-timer-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: #f8fafc; border-radius: 12px; padding: 12px 18px; margin-bottom: 24px; }
+    .rtb-label { font-weight: 700; color: #4f46e5; font-size: 0.9rem; flex-shrink: 0; }
+    .rtb-display { font-size: 1.8rem; font-weight: 800; font-family: 'Courier New', monospace; color: #1a202c; min-width: 80px; text-align: center; }
+    .rtb-display.warning { color: #dc2626; animation: blink 1s step-end infinite; }
+    .rtb-display.done { color: #16a34a; }
+    .rubric-table-wrap { overflow-x: auto; }
+    .rubric-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 560px; }
+    .rubric-table th, .rubric-table td { border: 1.5px solid #e2e8f0; padding: 11px 13px; vertical-align: top; }
+    .rubric-table thead th { font-weight: 700; text-align: center; padding: 13px; font-size: 0.92rem; }
+    .rubric-table thead th:first-child { background: #f8fafc; color: #64748b; }
+    .rubric-table thead th:nth-child(2) { background: #fefce8; color: #713f12; }
+    .rubric-table thead th:nth-child(3) { background: #f0fdf4; color: #166534; }
+    .rubric-table thead th:nth-child(4) { background: #fff1f2; color: #881337; }
+    .rubric-table tbody td:first-child { background: #f8fafc; font-weight: 700; white-space: nowrap; font-size: 0.9rem; }
+    .rubric-table tbody td { line-height: 1.5; }
+    .rubric-table ul { list-style: none; padding: 0; margin: 0; }
+    .rubric-table ul li::before { content: '• '; color: #94a3b8; }
+    .rubric-ex { background: #fefce8; }
+    .rubric-gt { background: #f0fdf4; }
+    .rubric-ny { background: #fff1f2; }
+
+    /* Responsive */
     @media (max-width: 600px) {
-      header h1 { font-size: 1.5rem; }
+      .header-brand h1 { font-size: 1.4rem; }
       .card { padding: 20px; }
       .results-grid { grid-template-columns: 1fr 1fr; }
+      .spinner-name { font-size: 2.2rem; }
+      .timer-display { font-size: 2.5rem; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>Student Group Assigner</h1>
-  <p>Randomly assign students to groups — with separation and together rules</p>
+  <div class="header-top">
+    <div class="header-brand">
+      <h1>Thinking Classrooms Toolkit</h1>
+      <p>Groups · Name Picker · Timer · Math Questions · Rubric</p>
+    </div>
+    <div class="teacher-toggle">
+      <span>👁️ Teacher Mode</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="teacherMode" checked onchange="toggleTeacherMode()" />
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="teacher-badge" id="teacherBadge">ON</span>
+    </div>
+  </div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-tab="groups"   onclick="switchTab('groups')">📋 Random Groups</button>
+    <button class="nav-tab"        data-tab="picker"   onclick="switchTab('picker')">🎲 Name Picker</button>
+    <button class="nav-tab"        data-tab="timer"    onclick="switchTab('timer')">⏱️ Timer</button>
+    <button class="nav-tab"        data-tab="math"     onclick="switchTab('math')">🧮 Math Questions</button>
+    <button class="nav-tab"        data-tab="rubric"   onclick="switchTab('rubric')">📊 Rubric</button>
+  </nav>
 </header>
 
+<!-- ═══════════════════════════════════ GROUPS TAB ══════════════════════════════════ -->
+<div id="tab-groups" class="tab-page active">
 <div class="container">
 
-  <!-- GOOGLE CLASSROOM IMPORT -->
+  <!-- Google Classroom Import -->
   <div class="card">
     <div class="card-title">
-      <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="48" height="48" rx="8" fill="#34A853"/>
-        <path d="M24 14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 16c-4.42 0-13 2.21-13 6.67V38h26v-1.33C37 32.21 28.42 30 24 30z" fill="white"/>
-      </svg>
+      <svg width="20" height="20" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="8" fill="#34A853"/><path d="M24 14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 16c-4.42 0-13 2.21-13 6.67V38h26v-1.33C37 32.21 28.42 30 24 30z" fill="white"/></svg>
       Import from Google Classroom
       <span class="badge" style="background:#dcfce7;color:#16a34a;">Optional</span>
     </div>
-
-    <!-- Not signed in -->
     <div id="gcNotSignedIn">
-      <p class="gc-intro">Sign in with Google to load your class roster automatically. You can import from multiple classes and switch between them.</p>
+      <p class="gc-intro">Sign in with Google to load your class roster automatically. You can import from multiple classes.</p>
       <button class="btn-google" onclick="gcSignIn()">
         <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
         Sign in with Google
       </button>
     </div>
-
-    <!-- Signed in -->
     <div id="gcSignedIn" style="display:none;">
       <div class="gc-user-row">
         <img id="gcAvatar" src="" alt="" onerror="this.style.display='none'" />
         <span>Signed in as <strong id="gcUserName"></strong></span>
         <button class="btn-signout" onclick="gcSignOut()">Sign Out</button>
       </div>
-
       <div class="gc-signed-in-row">
-        <select id="courseSelect" onchange="gcCourseChanged()">
-          <option value="">— Select a class —</option>
-        </select>
+        <select id="courseSelect" onchange="gcCourseChanged()"><option value="">— Select a class —</option></select>
         <button class="btn btn-primary" id="gcLoadBtn" onclick="gcLoadRoster()" disabled>Load Roster</button>
       </div>
-
-      <p class="gc-multi-hint">💡 You can load multiple classes — each load <strong>adds</strong> to the student list. Use <em>Clear All</em> to start fresh.</p>
+      <p class="gc-multi-hint">💡 Each load <strong>adds</strong> to the student list. Use <em>Clear All</em> to start fresh.</p>
       <div class="gc-status" id="gcStatus"></div>
     </div>
   </div>
 
-  <!-- STEP 1: Students -->
+  <!-- Students -->
   <div class="card">
     <div class="card-title">
       <span>Students</span>
       <span class="badge" id="studentCount">0 / 100</span>
     </div>
-
     <div class="input-row">
       <input type="text" id="studentInput" placeholder="Type a student name and press Enter…" />
       <button class="btn btn-primary" onclick="addStudentFromInput()">Add</button>
     </div>
-
     <div class="bulk-area">
       <textarea id="bulkInput" placeholder="Or paste a list here — one name per line…"></textarea>
       <div class="bulk-actions">
@@ -483,17 +360,15 @@
         <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
       </div>
     </div>
-
     <div class="student-list" id="studentList"></div>
-
     <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#fef3c7;border-color:#fbbf24"></div> In a separation rule</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;border-color:#4ade80"></div> In a together rule</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ede9fe;border-color:#a78bfa"></div> In both</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fef3c7;border-color:#fbbf24"></div> Separation rule</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;border-color:#4ade80"></div> Together rule</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ede9fe;border-color:#a78bfa"></div> Both</div>
     </div>
   </div>
 
-  <!-- STEP 2: Groups -->
+  <!-- Number of Groups -->
   <div class="card">
     <div class="card-title">Number of Groups</div>
     <div class="groups-row">
@@ -507,40 +382,43 @@
     </div>
   </div>
 
-  <!-- STEP 3a: Separation Rules -->
-  <div class="card">
+  <!-- Separation Rules (teacher only) -->
+  <div id="sepCard" class="card">
     <div class="card-title">
       <span>Separation Rules</span>
       <span class="badge" id="sepCount">0 rules</span>
+      <span style="font-size:0.75rem;color:#94a3b8;font-weight:500;margin-left:auto;">🔒 Teacher only</span>
     </div>
     <p style="font-size:0.88rem;color:#64748b;margin-bottom:14px;">These two students <strong>cannot</strong> be in the same group.</p>
-
     <div class="rule-selects">
       <select id="sepA"><option value="">— Student A —</option></select>
       <span class="op-badge sep">≠</span>
       <select id="sepB"><option value="">— Student B —</option></select>
       <button class="btn btn-primary" onclick="addSep()">Add Rule</button>
     </div>
-
     <div class="rules-list" id="sepList"></div>
   </div>
 
-  <!-- STEP 3b: Together Rules -->
-  <div class="card">
+  <!-- Together Rules (teacher only) -->
+  <div id="togCard" class="card">
     <div class="card-title">
       <span>Together Rules</span>
       <span class="badge" id="togCount">0 rules</span>
+      <span style="font-size:0.75rem;color:#94a3b8;font-weight:500;margin-left:auto;">🔒 Teacher only</span>
     </div>
     <p style="font-size:0.88rem;color:#64748b;margin-bottom:14px;">These two students <strong>must</strong> be placed in the same group.</p>
-
     <div class="rule-selects">
       <select id="togA"><option value="">— Student A —</option></select>
       <span class="op-badge tog">=</span>
       <select id="togB"><option value="">— Student B —</option></select>
       <button class="btn btn-primary" onclick="addTog()">Add Rule</button>
     </div>
-
     <div class="rules-list" id="togList"></div>
+  </div>
+
+  <!-- Hidden rules notice (shown in student mode when rules exist) -->
+  <div id="hiddenRulesBanner" class="rules-hidden-banner" style="display:none;">
+    🔒 Some grouping rules are active but hidden. Groups will still be assigned fairly.
   </div>
 
   <!-- Generate -->
@@ -560,514 +438,1127 @@
   </div>
 
 </div>
+</div>
+
+<!-- ═══════════════════════════════════ PICKER TAB ══════════════════════════════════ -->
+<div id="tab-picker" class="tab-page">
+<div class="container">
+  <div class="card">
+    <div class="card-title">🎲 Random Name Picker</div>
+    <p style="font-size:0.9rem;color:#64748b;margin-bottom:20px;">Randomly select a student to answer a question. Students are pulled from your Groups list.</p>
+
+    <div id="pickerNoStudents" class="picker-no-students">
+      ⚠️ No students added yet — go to the <strong>Groups</strong> tab and add students first.
+    </div>
+
+    <div id="pickerMain" style="display:none;">
+      <div class="picker-center">
+        <div class="spinner-stage">
+          <div class="spinner-label">Selected Student</div>
+          <div class="spinner-name" id="spinnerName">?</div>
+        </div>
+        <div id="winnerBanner" class="winner-banner" style="display:none;"></div>
+        <button class="btn-spin" id="spinBtn" onclick="spinPicker()">🎲 Pick a Student!</button>
+      </div>
+
+      <div class="picked-history card" style="margin-top:8px;padding:20px;">
+        <div class="card-title" style="margin-bottom:10px;">Recently Picked</div>
+        <div id="historyList" class="picked-history-list">
+          <span style="color:#94a3b8;font-size:0.85rem;">No one picked yet.</span>
+        </div>
+        <button class="btn btn-secondary" style="margin-top:12px;font-size:0.82rem;padding:6px 14px;" onclick="clearHistory()">Clear History</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════ TIMER TAB ═══════════════════════════════════ -->
+<div id="tab-timer" class="tab-page">
+<div class="container">
+  <div class="timer-grid">
+
+    <!-- Stopwatch -->
+    <div class="card">
+      <div class="card-title">⏱️ Stopwatch</div>
+      <div class="timer-display" id="swDisplay">00:00.0</div>
+      <div class="timer-btns">
+        <button class="btn btn-primary"   id="swStartBtn"  onclick="swToggle()">Start</button>
+        <button class="btn btn-secondary" onclick="swReset()">Reset</button>
+        <button class="btn btn-secondary" onclick="swLap()"  id="swLapBtn" disabled>Lap</button>
+      </div>
+      <div id="swLaps" style="margin-top:14px;display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto;"></div>
+    </div>
+
+    <!-- Countdown Timer -->
+    <div class="card">
+      <div class="card-title">⏳ Countdown <button class="btn-timer-fs" onclick="openTimerFs()">⛶ Full Screen</button></div>
+      <div class="preset-btns">
+        <button class="btn-preset" onclick="cdPreset(1,0)">1 min</button>
+        <button class="btn-preset" onclick="cdPreset(2,0)">2 min</button>
+        <button class="btn-preset" onclick="cdPreset(5,0)">5 min</button>
+        <button class="btn-preset" onclick="cdPreset(10,0)">10 min</button>
+        <button class="btn-preset" onclick="cdPreset(0,30)">30 sec</button>
+      </div>
+      <div class="countdown-setter">
+        <div class="time-unit">
+          <div class="time-input-ctrl">
+            <button onclick="cdAdjust('min',1)">+</button>
+            <input type="number" id="cdMinInput" value="5" min="0" max="99" oninput="cdInputChanged()" />
+            <button onclick="cdAdjust('min',-1)">−</button>
+          </div>
+          <span>min</span>
+        </div>
+        <div class="colon-sep">:</div>
+        <div class="time-unit">
+          <div class="time-input-ctrl">
+            <button onclick="cdAdjust('sec',5)">+</button>
+            <input type="number" id="cdSecInput" value="0" min="0" max="59" oninput="cdInputChanged()" />
+            <button onclick="cdAdjust('sec',-5)">−</button>
+          </div>
+          <span>sec</span>
+        </div>
+      </div>
+      <div class="timer-display" id="cdDisplay">05:00</div>
+      <div class="timer-btns">
+        <button class="btn btn-primary"   id="cdStartBtn" onclick="cdToggle()">Start</button>
+        <button class="btn btn-secondary" onclick="cdReset()">Reset</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════ MATH QUESTIONS TAB ══════════════════════════════ -->
+<div id="tab-math" class="tab-page">
+<div class="container">
+  <div class="card">
+    <div class="card-title">🧮 Building Thinking Classroom — Math Questions</div>
+    <p style="font-size:0.88rem;color:#64748b;margin-bottom:18px;">Open-ended, collaborative problems designed to spark thinking. Set a timer for each question.</p>
+
+    <div class="grade-tabs">
+      <button class="grade-tab active" onclick="switchGrade('g6')">Grade 6</button>
+      <button class="grade-tab"        onclick="switchGrade('g7')">Grade 7</button>
+      <button class="grade-tab"        onclick="switchGrade('g8')">Grade 8</button>
+    </div>
+
+    <!-- ── Grade 6 ── -->
+    <div id="grade-g6" class="grade-content active">
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g6-0">Area &amp; Perimeter</div>
+            <div class="q-text" id="qtext-g6-0" style="margin-top:8px;">You have <strong>24 square tiles</strong>. How many different rectangles can you make using all 24 tiles? Which rectangle has the <strong>biggest perimeter</strong>? Which has the <strong>smallest</strong>? What if you had 36 tiles?</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g6',0)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g6-0" onclick="toggleSol('g6',0)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g6-0"></div>
+        <div class="q-timer" id="timer-g6-0">
+          <div class="q-timer-display" id="td-g6-0">--:--</div>
+          <div class="q-timer-set">
+            <label>Time:</label>
+            <select id="ts-g6-0"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select>
+          </div>
+          <div class="q-timer-btns">
+            <button class="btn btn-primary"   onclick="qtToggle('g6',0)">Start</button>
+            <button class="btn btn-secondary" onclick="qtReset('g6',0)">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g6-1">Ratios &amp; Proportions</div>
+            <div class="q-text" id="qtext-g6-1" style="margin-top:8px;">A recipe makes purple paint using <strong>3 parts red</strong> and <strong>5 parts blue</strong>. How much of each do you need to make 400 mL of purple? What if you only have 45 mL of red — how much blue do you need? Can you make exactly 50 mL of purple?</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g6',1)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g6-1" onclick="toggleSol('g6',1)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g6-1"></div>
+        <div class="q-timer" id="timer-g6-1">
+          <div class="q-timer-display" id="td-g6-1">--:--</div>
+          <div class="q-timer-set"><label>Time:</label><select id="ts-g6-1"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select></div>
+          <div class="q-timer-btns"><button class="btn btn-primary" onclick="qtToggle('g6',1)">Start</button><button class="btn btn-secondary" onclick="qtReset('g6',1)">Reset</button></div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g6-2">Integers</div>
+            <div class="q-text" id="qtext-g6-2" style="margin-top:8px;">The temperature at midnight was <strong>−8°C</strong>. By noon it had risen <strong>15°C</strong>. By evening it dropped <strong>9°C</strong> from noon. What's the temperature at each time? At what point in the day was it <strong>0°C</strong>?</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g6',2)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g6-2" onclick="toggleSol('g6',2)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g6-2"></div>
+        <div class="q-timer" id="timer-g6-2">
+          <div class="q-timer-display" id="td-g6-2">--:--</div>
+          <div class="q-timer-set"><label>Time:</label><select id="ts-g6-2"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select></div>
+          <div class="q-timer-btns"><button class="btn btn-primary" onclick="qtToggle('g6',2)">Start</button><button class="btn btn-secondary" onclick="qtReset('g6',2)">Reset</button></div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g6-3">Patterns &amp; Algebra</div>
+            <div class="q-text" id="qtext-g6-3" style="margin-top:8px;">A staircase is built from cubes: step 1 uses 1 cube, step 2 adds 2 more, step 3 adds 3 more… How many cubes total for a <strong>10-step staircase</strong>? Can you find a shortcut instead of adding them all up? What about 100 steps?</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g6',3)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g6-3" onclick="toggleSol('g6',3)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g6-3"></div>
+        <div class="q-timer" id="timer-g6-3">
+          <div class="q-timer-display" id="td-g6-3">--:--</div>
+          <div class="q-timer-set"><label>Time:</label><select id="ts-g6-3"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select></div>
+          <div class="q-timer-btns"><button class="btn btn-primary" onclick="qtToggle('g6',3)">Start</button><button class="btn btn-secondary" onclick="qtReset('g6',3)">Reset</button></div>
+        </div>
+      </div>
+
+    </div><!-- end grade 6 -->
+
+    <!-- ── Grade 7 ── -->
+    <div id="grade-g7" class="grade-content">
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g7-0">Percent</div>
+            <div class="q-text" id="qtext-g7-0" style="margin-top:8px;">A store has a <strong>25% off</strong> sale. Then they take an <strong>additional 10% off</strong> the sale price. Is that the same as <strong>35% off</strong>? You have $60 — what is the most expensive item you can buy? What if tax is 13%?</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g7',0)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g7-0" onclick="toggleSol('g7',0)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g7-0"></div>
+        <div class="q-timer" id="timer-g7-0">
+          <div class="q-timer-display" id="td-g7-0">--:--</div>
+          <div class="q-timer-set"><label>Time:</label><select id="ts-g7-0"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select></div>
+          <div class="q-timer-btns"><button class="btn btn-primary" onclick="qtToggle('g7',0)">Start</button><button class="btn btn-secondary" onclick="qtReset('g7',0)">Reset</button></div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g7-1">Proportional Reasoning</div>
+            <div class="q-text" id="qtext-g7-1" style="margin-top:8px;">Two cyclists start at the same place. One rides at <strong>12 km/h</strong>, the other at <strong>15 km/h</strong>. If they go the same direction, how far apart are they after 2 hours? What about opposite directions? When is one cyclist <strong>exactly 9 km</strong> ahead of the other?</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g7',1)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g7-1" onclick="toggleSol('g7',1)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g7-1"></div>
+        <div class="q-timer" id="timer-g7-1">
+          <div class="q-timer-display" id="td-g7-1">--:--</div>
+          <div class="q-timer-set"><label>Time:</label><select id="ts-g7-1"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select></div>
+          <div class="q-timer-btns"><button class="btn btn-primary" onclick="qtToggle('g7',1)">Start</button><button class="btn btn-secondary" onclick="qtReset('g7',1)">Reset</button></div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g7-2">Expressions &amp; Equations</div>
+            <div class="q-text" id="qtext-g7-2" style="margin-top:8px;">Think of any number. <strong>Double it → add 10 → divide by 2 → subtract your original number.</strong> You always get 5! Try it with fractions or negatives. Why does this always work? Can you make a trick that always gives <strong>your original number back</strong>?</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g7',2)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g7-2" onclick="toggleSol('g7',2)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g7-2"></div>
+        <div class="q-timer" id="timer-g7-2">
+          <div class="q-timer-display" id="td-g7-2">--:--</div>
+          <div class="q-timer-set"><label>Time:</label><select id="ts-g7-2"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select></div>
+          <div class="q-timer-btns"><button class="btn btn-primary" onclick="qtToggle('g7',2)">Start</button><button class="btn btn-secondary" onclick="qtReset('g7',2)">Reset</button></div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g7-3">Geometry</div>
+            <div class="q-text" id="qtext-g7-3" style="margin-top:8px;">You have a rectangular piece of paper <strong>20 cm × 12 cm</strong>. What is its area and perimeter? If you fold it in half, what are the new dimensions? Can you make a shape from the same piece of paper with a <strong>larger perimeter but the same area</strong>?</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g7',3)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g7-3" onclick="toggleSol('g7',3)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g7-3"></div>
+        <div class="q-timer" id="timer-g7-3">
+          <div class="q-timer-display" id="td-g7-3">--:--</div>
+          <div class="q-timer-set"><label>Time:</label><select id="ts-g7-3"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select></div>
+          <div class="q-timer-btns"><button class="btn btn-primary" onclick="qtToggle('g7',3)">Start</button><button class="btn btn-secondary" onclick="qtReset('g7',3)">Reset</button></div>
+        </div>
+      </div>
+
+    </div><!-- end grade 7 -->
+
+    <!-- ── Grade 8 ── -->
+    <div id="grade-g8" class="grade-content">
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g8-0">Pythagorean Theorem</div>
+            <div class="q-text" id="qtext-g8-0" style="margin-top:8px;">A <strong>5 m ladder</strong> leans against a wall with its base <strong>1.5 m</strong> from the wall. How high does it reach? If you push the base out to <strong>2.5 m</strong>, how much does the top slide down? At what base distance does the ladder reach <strong>exactly 4 m</strong> high?</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g8',0)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g8-0" onclick="toggleSol('g8',0)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g8-0"></div>
+        <div class="q-timer" id="timer-g8-0">
+          <div class="q-timer-display" id="td-g8-0">--:--</div>
+          <div class="q-timer-set"><label>Time:</label><select id="ts-g8-0"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select></div>
+          <div class="q-timer-btns"><button class="btn btn-primary" onclick="qtToggle('g8',0)">Start</button><button class="btn btn-secondary" onclick="qtReset('g8',0)">Reset</button></div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g8-1">Linear Relations</div>
+            <div class="q-text" id="qtext-g8-1" style="margin-top:8px;">Toothpicks are arranged in a row of squares: <strong>1 square = 4 toothpicks, 2 squares = 7, 3 squares = 10…</strong> How many toothpicks for <strong>100 squares</strong>? How many squares can you build with <strong>exactly 100 toothpicks</strong>? Write a formula.</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g8',1)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g8-1" onclick="toggleSol('g8',1)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g8-1"></div>
+        <div class="q-timer" id="timer-g8-1">
+          <div class="q-timer-display" id="td-g8-1">--:--</div>
+          <div class="q-timer-set"><label>Time:</label><select id="ts-g8-1"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select></div>
+          <div class="q-timer-btns"><button class="btn btn-primary" onclick="qtToggle('g8',1)">Start</button><button class="btn btn-secondary" onclick="qtReset('g8',1)">Reset</button></div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g8-2">Volume</div>
+            <div class="q-text" id="qtext-g8-2" style="margin-top:8px;">A <strong>cylinder</strong> and a <strong>cone</strong> have the same radius and the same height. The cylinder is filled with water. How many <strong>cones can you fill</strong> from the cylinder? Does it matter what the radius or height actually is? What if you used a <strong>sphere</strong> instead?</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g8',2)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g8-2" onclick="toggleSol('g8',2)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g8-2"></div>
+        <div class="q-timer" id="timer-g8-2">
+          <div class="q-timer-display" id="td-g8-2">--:--</div>
+          <div class="q-timer-set"><label>Time:</label><select id="ts-g8-2"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select></div>
+          <div class="q-timer-btns"><button class="btn btn-primary" onclick="qtToggle('g8',2)">Start</button><button class="btn btn-secondary" onclick="qtReset('g8',2)">Reset</button></div>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-header">
+          <div>
+            <div class="q-tag" id="tag-g8-3">Linear Equations</div>
+            <div class="q-text" id="qtext-g8-3" style="margin-top:8px;">Candle A is <strong>20 cm tall</strong> and burns <strong>2 cm per hour</strong>. Candle B is <strong>14 cm tall</strong> and burns <strong>1 cm per hour</strong>. When are they the <strong>same height</strong>? Which burns out first? Sketch both on the same graph. What if Candle B was lit <strong>1 hour later</strong>?</div>
+          </div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-qfs" onclick="openQfs('g8',3)">⛶ Full Screen</button>
+          <button class="btn-sol" id="solbtn-g8-3" onclick="toggleSol('g8',3)">💡 Show Solution</button>
+        </div>
+        <div class="solution-body" id="sol-g8-3"></div>
+        <div class="q-timer" id="timer-g8-3">
+          <div class="q-timer-display" id="td-g8-3">--:--</div>
+          <div class="q-timer-set"><label>Time:</label><select id="ts-g8-3"><option value="120">2 min</option><option value="180">3 min</option><option value="300" selected>5 min</option><option value="600">10 min</option><option value="900">15 min</option></select></div>
+          <div class="q-timer-btns"><button class="btn btn-primary" onclick="qtToggle('g8',3)">Start</button><button class="btn btn-secondary" onclick="qtReset('g8',3)">Reset</button></div>
+        </div>
+      </div>
+
+    </div><!-- end grade 8 -->
+
+  </div><!-- .card -->
+</div><!-- .container -->
+</div><!-- tab-math -->
+
+<!-- ═══════════════════════════ RUBRIC TAB ══════════════════════════════ -->
+<div id="tab-rubric" class="tab-page">
+<div class="container">
+  <div class="card">
+    <div class="card-title">📊 BTC Group Work Rubric</div>
+
+    <!-- Timer bar -->
+    <div class="rubric-timer-bar">
+      <span class="rtb-label">⏱️ Timer:</span>
+      <div class="preset-btns" style="margin:0;">
+        <button class="btn-preset" onclick="rtbPreset(1,0)">1 min</button>
+        <button class="btn-preset" onclick="rtbPreset(2,0)">2 min</button>
+        <button class="btn-preset" onclick="rtbPreset(5,0)">5 min</button>
+        <button class="btn-preset" onclick="rtbPreset(10,0)">10 min</button>
+        <button class="btn-preset" onclick="rtbPreset(0,30)">30 sec</button>
+      </div>
+      <div class="rtb-display" id="rtbDisplay">05:00</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" id="rtbStartBtn" onclick="rtbToggle()" style="padding:7px 18px;font-size:0.88rem;">Start</button>
+        <button class="btn btn-secondary" onclick="rtbReset()" style="padding:7px 14px;font-size:0.88rem;">Reset</button>
+      </div>
+    </div>
+
+    <!-- Rubric table -->
+    <div class="rubric-table-wrap">
+      <table class="rubric-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>⭐ Excellent</th>
+            <th>👍 Getting There</th>
+            <th>🚫 Not Yet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🤝 Collaboration</td>
+            <td class="rubric-ex"><ul><li>Everyone participates</li><li>Share the marker</li><li>Respect ideas</li></ul></td>
+            <td class="rubric-gt"><ul><li>Most participate</li><li>Some sharing</li></ul></td>
+            <td class="rubric-ny"><ul><li>One person works</li><li>Ignoring or arguing</li></ul></td>
+          </tr>
+          <tr>
+            <td>🗣️ Communication</td>
+            <td class="rubric-ex"><ul><li>Explain steps clearly</li><li>Writing easy to read</li><li>Use math vocabulary</li></ul></td>
+            <td class="rubric-gt"><ul><li>Some explanation</li><li>Some unclear writing</li></ul></td>
+            <td class="rubric-ny"><ul><li>Not explaining</li><li>Guessing</li><li>Hard to read</li></ul></td>
+          </tr>
+          <tr>
+            <td>🎓 Teach Each Other</td>
+            <td class="rubric-ex"><ul><li>Everyone can explain</li><li>Help each other understand</li></ul></td>
+            <td class="rubric-gt"><ul><li>Some can explain</li></ul></td>
+            <td class="rubric-ny"><ul><li>Only one understands</li><li>Rushing</li></ul></td>
+          </tr>
+          <tr>
+            <td>💪 Perseverance</td>
+            <td class="rubric-ex"><ul><li>Do not give up</li><li>Try different strategies</li><li>Keep thinking</li></ul></td>
+            <td class="rubric-gt"><ul><li>Try, but stop when stuck</li></ul></td>
+            <td class="rubric-ny"><ul><li>Give up quickly</li></ul></td>
+          </tr>
+          <tr>
+            <td>🔢 Mathematical Thinking</td>
+            <td class="rubric-ex"><ul><li>Justify answers</li><li>Look for patterns</li><li>Check if it makes sense</li></ul></td>
+            <td class="rubric-gt"><ul><li>Some reasoning shown</li><li>Limited explanation</li></ul></td>
+            <td class="rubric-ny"><ul><li>Just answers</li><li>No explanation</li><li>Guessing</li></ul></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════ TIMER FULLSCREEN OVERLAY ═══════════ -->
+<div id="tfsOverlay" class="tfs-overlay">
+  <button class="btn-tfs-close" onclick="closeTimerFs()">✕ Close</button>
+  <div class="tfs-presets">
+    <button class="btn-tfs-preset" onclick="tfsPreset(1,0)">1 min</button>
+    <button class="btn-tfs-preset" onclick="tfsPreset(2,0)">2 min</button>
+    <button class="btn-tfs-preset" onclick="tfsPreset(5,0)">5 min</button>
+    <button class="btn-tfs-preset" onclick="tfsPreset(10,0)">10 min</button>
+    <button class="btn-tfs-preset" onclick="tfsPreset(0,30)">30 sec</button>
+  </div>
+  <div class="tfs-display" id="tfsDisplay">05:00</div>
+  <div class="tfs-btns">
+    <button class="btn-tfs-primary" id="tfsStartBtn" onclick="tfsToggle()">Start</button>
+    <button class="btn-tfs-secondary" onclick="tfsReset()">Reset</button>
+  </div>
+</div>
+
+<!-- ═══════════ QUESTION FULLSCREEN OVERLAY ═══════════ -->
+<div id="qfsOverlay" class="qfs-overlay">
+  <button class="fs-close-btn" onclick="closeQfs()">✕ Close</button>
+  <div class="qfs-tag" id="qfsTag"></div>
+  <div class="qfs-question" id="qfsQuestion"></div>
+  <div class="qfs-presets">
+    <button class="btn-qfs-preset" onclick="qfsPreset(120)">2 min</button>
+    <button class="btn-qfs-preset" onclick="qfsPreset(180)">3 min</button>
+    <button class="btn-qfs-preset" onclick="qfsPreset(300)">5 min</button>
+    <button class="btn-qfs-preset" onclick="qfsPreset(600)">10 min</button>
+    <button class="btn-qfs-preset" onclick="qfsPreset(900)">15 min</button>
+  </div>
+  <div class="qfs-timer-display" id="qfsTimerDisplay">05:00</div>
+  <div class="qfs-btns">
+    <button class="btn-qfs-primary" id="qfsStartBtn" onclick="qfsToggle()">Start</button>
+    <button class="btn-qfs-secondary" onclick="qfsReset()">Reset</button>
+  </div>
+  <div class="qfs-sol-section" id="qfsSolSection">
+    <button class="btn-qfs-sol" id="qfsSolBtn" onclick="toggleQfsSol()">💡 Show Solution</button>
+    <div class="qfs-sol-body" id="qfsSolBody"></div>
+  </div>
+</div>
 
 <script>
-  // ── State ──────────────────────────────────────────────────────────────────
-  let students = [];
-  let separations = []; // [nameA, nameB] — must NOT be in same group
-  let togethers   = []; // [nameA, nameB] — MUST be in same group
+// ═══════════════════════════ STATE ═══════════════════════════
+let students    = [];
+let separations = [];
+let togethers   = [];
+let teacherMode = true;
+let pickerHistory = [];
 
-  const GROUP_COLORS = [
-    { bg: '#f0fdf4', border: '#86efac', dot: '#16a34a', text: '#166534' },
-    { bg: '#eff6ff', border: '#93c5fd', dot: '#2563eb', text: '#1e40af' },
-    { bg: '#fdf4ff', border: '#d8b4fe', dot: '#9333ea', text: '#6b21a8' },
-    { bg: '#fff7ed', border: '#fdba74', dot: '#ea580c', text: '#9a3412' },
-    { bg: '#f0f9ff', border: '#7dd3fc', dot: '#0284c7', text: '#0c4a6e' },
-    { bg: '#fefce8', border: '#fde047', dot: '#ca8a04', text: '#713f12' },
-    { bg: '#fff1f2', border: '#fda4af', dot: '#e11d48', text: '#881337' },
-    { bg: '#f7fee7', border: '#a3e635', dot: '#65a30d', text: '#3f6212' },
-  ];
+const GROUP_COLORS = [
+  { bg:'#f0fdf4',border:'#86efac',dot:'#16a34a',text:'#166534' },
+  { bg:'#eff6ff',border:'#93c5fd',dot:'#2563eb',text:'#1e40af' },
+  { bg:'#fdf4ff',border:'#d8b4fe',dot:'#9333ea',text:'#6b21a8' },
+  { bg:'#fff7ed',border:'#fdba74',dot:'#ea580c',text:'#9a3412' },
+  { bg:'#f0f9ff',border:'#7dd3fc',dot:'#0284c7',text:'#0c4a6e' },
+  { bg:'#fefce8',border:'#fde047',dot:'#ca8a04',text:'#713f12' },
+  { bg:'#fff1f2',border:'#fda4af',dot:'#e11d48',text:'#881337' },
+  { bg:'#f7fee7',border:'#a3e635',dot:'#65a30d',text:'#3f6212' },
+];
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
-  function normalizeName(n) { return n.trim().replace(/\s+/g, ' '); }
-  function esc(s) { return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+// ═══════════════════════════ TABS ════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelector(`[data-tab="${name}"]`).classList.add('active');
+  if (name === 'picker') refreshPicker();
+}
 
-  function pairExists(arr, a, b) {
-    return arr.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
-  }
+// ═══════════════════════ TEACHER MODE ═══════════════════════
+function toggleTeacherMode() {
+  teacherMode = document.getElementById('teacherMode').checked;
+  document.getElementById('teacherBadge').textContent = teacherMode ? 'ON' : 'OFF';
+  const sepCard  = document.getElementById('sepCard');
+  const togCard  = document.getElementById('togCard');
+  const banner   = document.getElementById('hiddenRulesBanner');
+  const hasRules = separations.length > 0 || togethers.length > 0;
 
-  // ── Student management ─────────────────────────────────────────────────────
-  function addStudent(name) {
-    name = normalizeName(name);
-    if (!name) return false;
-    if (students.includes(name)) return false;
-    if (students.length >= 100) { alert('Maximum of 100 students reached.'); return false; }
-    students.push(name);
-    return true;
-  }
+  sepCard.style.display = teacherMode ? '' : 'none';
+  togCard.style.display = teacherMode ? '' : 'none';
+  banner.style.display  = (!teacherMode && hasRules) ? 'flex' : 'none';
+}
 
-  function addStudentFromInput() {
-    const input = document.getElementById('studentInput');
-    if (addStudent(input.value)) { input.value = ''; render(); }
-    input.focus();
-  }
+// ═══════════════════════════ HELPERS ═════════════════════════
+function normalizeName(n) { return n.trim().replace(/\s+/g,' '); }
+function esc(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function pairExists(arr,a,b) { return arr.some(([x,y])=>(x===a&&y===b)||(x===b&&y===a)); }
 
-  function bulkAdd() {
-    const ta = document.getElementById('bulkInput');
-    ta.value.split('\n').map(normalizeName).filter(Boolean).forEach(l => addStudent(l));
-    ta.value = '';
-    render();
-  }
-
-  function removeStudent(name) {
-    students    = students.filter(s => s !== name);
-    separations = separations.filter(([a, b]) => a !== name && b !== name);
-    togethers   = togethers.filter(([a, b]) => a !== name && b !== name);
-    render();
-  }
-
-  function clearAll() {
-    students = []; separations = []; togethers = [];
-    render();
-    document.getElementById('resultsCard').style.display = 'none';
-  }
-
-  // ── Separation rules ───────────────────────────────────────────────────────
-  function addSep() {
-    const a = document.getElementById('sepA').value;
-    const b = document.getElementById('sepB').value;
-    if (!a || !b) return alert('Please select both students.');
-    if (a === b)  return alert('A student cannot be separated from themselves.');
-    if (pairExists(separations, a, b)) return alert('This separation rule already exists.');
-    if (pairExists(togethers, a, b))
-      return alert(`"${a}" and "${b}" are already set as a together rule — cannot also separate them.`);
-    separations.push([a, b]);
-    document.getElementById('sepA').value = '';
-    document.getElementById('sepB').value = '';
-    render();
-  }
-
-  function removeSep(i) { separations.splice(i, 1); render(); }
-
-  // ── Together rules ─────────────────────────────────────────────────────────
-  function addTog() {
-    const a = document.getElementById('togA').value;
-    const b = document.getElementById('togB').value;
-    if (!a || !b) return alert('Please select both students.');
-    if (a === b)  return alert('A student cannot be paired with themselves.');
-    if (pairExists(togethers, a, b)) return alert('This together rule already exists.');
-    if (pairExists(separations, a, b))
-      return alert(`"${a}" and "${b}" are already set as a separation rule — cannot also keep them together.`);
-    togethers.push([a, b]);
-    document.getElementById('togA').value = '';
-    document.getElementById('togB').value = '';
-    render();
-  }
-
-  function removeTog(i) { togethers.splice(i, 1); render(); }
-
-  // ── Number of groups ───────────────────────────────────────────────────────
-  function changeGroups(delta) {
-    const inp = document.getElementById('groupCount');
-    inp.value = Math.max(2, Math.min(50, parseInt(inp.value || 2) + delta));
-    updateHint();
-  }
-
-  function updateHint() {
-    const n = students.length;
-    const g = parseInt(document.getElementById('groupCount').value) || 2;
-    document.getElementById('groupHint').textContent = n === 0
-      ? '~0 students per group'
-      : `~${Math.floor(n / g)}–${Math.ceil(n / g)} students per group`;
-  }
-
-  // ── Union-Find for together clusters ──────────────────────────────────────
-  function buildClusters() {
-    const parent = {};
-    students.forEach(s => parent[s] = s);
-
-    function find(x) {
-      if (parent[x] !== x) parent[x] = find(parent[x]);
-      return parent[x];
-    }
-    togethers.forEach(([a, b]) => { parent[find(a)] = find(b); });
-
-    const map = {};
-    students.forEach(s => {
-      const root = find(s);
-      if (!map[root]) map[root] = [];
-      map[root].push(s);
-    });
-    return Object.values(map);
-  }
-
-  // ── Group Generation ───────────────────────────────────────────────────────
-  function shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  function separatedFrom(name, groupMembers) {
-    return separations.some(([a, b]) =>
-      (a === name && groupMembers.includes(b)) ||
-      (b === name && groupMembers.includes(a))
-    );
-  }
-
-  function generate() {
-    document.getElementById('errorBanner').style.display = 'none';
-
-    const n = students.length;
-    const g = Math.min(parseInt(document.getElementById('groupCount').value) || 2, n);
-
-    if (n < 2) return showError('Please add at least 2 students.');
-    if (g < 2) return showError('Please set at least 2 groups.');
-
-    const maxSize = Math.ceil(n / g);
-    const clusters = buildClusters();
-
-    // Check: together cluster members that also have a separation rule between them
-    for (const cluster of clusters) {
-      for (let i = 0; i < cluster.length; i++) {
-        for (let j = i + 1; j < cluster.length; j++) {
-          if (pairExists(separations, cluster[i], cluster[j])) {
-            return showError(
-              `"${cluster[i]}" and "${cluster[j]}" are set to be both together AND separated — please remove one of the conflicting rules.`
-            );
-          }
-        }
-      }
-    }
-
-    // Check: no together-cluster is larger than maxSize
-    const oversized = clusters.find(c => c.length > maxSize);
-    if (oversized) {
-      return showError(
-        `A "together" cluster of ${oversized.length} students is too large to fit in one group (max ${maxSize}). Try increasing the number of groups.`
-      );
-    }
-
-    const multiClusters = clusters.filter(c => c.length > 1);
-    const singles       = clusters.filter(c => c.length === 1).map(c => c[0]);
-
-    let groups = null;
-    for (let attempt = 0; attempt < 3000; attempt++) {
-      const candidate = Array.from({ length: g }, () => []);
-      let valid = true;
-
-      // Place multi-student together-clusters first (as indivisible units)
-      for (const cluster of shuffle(multiClusters)) {
-        const validGroups = candidate.filter(grp =>
-          grp.length + cluster.length <= maxSize &&
-          !cluster.some(m => separatedFrom(m, grp))
-        );
-        if (validGroups.length === 0) { valid = false; break; }
-        const target = validGroups.reduce((a, b) => a.length <= b.length ? a : b);
-        cluster.forEach(m => target.push(m));
-      }
-      if (!valid) continue;
-
-      // Place remaining single students
-      for (const student of shuffle(singles)) {
-        const validGroups = candidate.filter(grp =>
-          grp.length < maxSize && !separatedFrom(student, grp)
-        );
-        if (validGroups.length === 0) { valid = false; break; }
-        const target = validGroups.reduce((a, b) => a.length <= b.length ? a : b);
-        target.push(student);
-      }
-
-      if (valid) { groups = candidate; break; }
-    }
-
-    if (!groups) {
-      return showError('Could not satisfy all rules with the current number of groups. Try increasing the number of groups or removing some rules.');
-    }
-
-    renderResults(groups);
-  }
-
-  function showError(msg) {
-    const banner = document.getElementById('errorBanner');
-    banner.textContent = msg;
-    banner.style.display = 'block';
-  }
-
-  // ── Render ─────────────────────────────────────────────────────────────────
-  function render() {
-    const sepStudents = new Set(separations.flat());
-    const togStudents = new Set(togethers.flat());
-
-    // Student chips
-    const list = document.getElementById('studentList');
-    list.innerHTML = '';
-    if (students.length === 0) {
-      list.innerHTML = '<p class="empty-state">No students added yet.</p>';
-    } else {
-      students.forEach(name => {
-        const inSep = sepStudents.has(name);
-        const inTog = togStudents.has(name);
-        const cls = inSep && inTog ? 'both-highlight' : inSep ? 'sep-highlight' : inTog ? 'tog-highlight' : '';
-        const chip = document.createElement('div');
-        chip.className = 'student-chip' + (cls ? ' ' + cls : '');
-        chip.innerHTML = `<span>${name}</span><button onclick="removeStudent('${esc(name)}')" title="Remove">×</button>`;
-        list.appendChild(chip);
-      });
-    }
-
-    document.getElementById('studentCount').textContent = `${students.length} / 100`;
-
-    // Populate all four dropdowns
-    [['sepA','— Student A —'],['sepB','— Student B —'],
-     ['togA','— Student A —'],['togB','— Student B —']].forEach(([id, placeholder]) => {
-      const sel = document.getElementById(id);
-      const val = sel.value;
-      sel.innerHTML = `<option value="">${placeholder}</option>`;
-      students.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s; opt.textContent = s;
-        sel.appendChild(opt);
-      });
-      if (students.includes(val)) sel.value = val;
-    });
-
-    // Separation rules list
-    const sl = document.getElementById('sepList');
-    sl.innerHTML = '';
-    if (separations.length === 0) {
-      sl.innerHTML = '<p class="empty-state">No separation rules added.</p>';
-    } else {
-      separations.forEach(([a, b], i) => {
-        const item = document.createElement('div');
-        item.className = 'rule-item sep';
-        item.innerHTML = `
-          <div class="names"><span>${a}</span><span class="sym">≠</span><span>${b}</span></div>
-          <button class="btn btn-danger" style="padding:4px 12px;font-size:0.8rem;" onclick="removeSep(${i})">Remove</button>`;
-        sl.appendChild(item);
-      });
-    }
-    document.getElementById('sepCount').textContent =
-      `${separations.length} rule${separations.length !== 1 ? 's' : ''}`;
-
-    // Together rules list
-    const tl = document.getElementById('togList');
-    tl.innerHTML = '';
-    if (togethers.length === 0) {
-      tl.innerHTML = '<p class="empty-state">No together rules added.</p>';
-    } else {
-      togethers.forEach(([a, b], i) => {
-        const item = document.createElement('div');
-        item.className = 'rule-item tog';
-        item.innerHTML = `
-          <div class="names"><span>${a}</span><span class="sym">=</span><span>${b}</span></div>
-          <button class="btn btn-danger" style="padding:4px 12px;font-size:0.8rem;" onclick="removeTog(${i})">Remove</button>`;
-        tl.appendChild(item);
-      });
-    }
-    document.getElementById('togCount').textContent =
-      `${togethers.length} rule${togethers.length !== 1 ? 's' : ''}`;
-
-    updateHint();
-  }
-
-  function renderResults(groups) {
-    const card = document.getElementById('resultsCard');
-    const grid = document.getElementById('resultsGrid');
-    grid.innerHTML = '';
-
-    groups.forEach((members, i) => {
-      const color = GROUP_COLORS[i % GROUP_COLORS.length];
-      const div = document.createElement('div');
-      div.className = 'group-card';
-      div.style.background = color.bg;
-      div.style.borderColor = color.border;
-
-      const items = members.length === 0
-        ? '<li style="color:#94a3b8;font-size:0.85rem;">Empty group</li>'
-        : members.map(m => `<li><span style="background:${color.dot}"></span>${m}</li>`).join('');
-
-      div.innerHTML = `
-        <h3 style="color:${color.text}">Group ${i + 1} <span style="font-weight:400;text-transform:none;letter-spacing:0;">(${members.length})</span></h3>
-        <ul>${items}</ul>`;
-      grid.appendChild(div);
-    });
-
-    card.style.display = 'block';
-    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function copyResults() {
-    const cards = document.querySelectorAll('.group-card');
-    let text = '';
-    cards.forEach((card, i) => {
-      const names = [...card.querySelectorAll('li')].map(li => li.textContent.trim());
-      text += `Group ${i + 1}:\n${names.map(n => `  - ${n}`).join('\n')}\n\n`;
-    });
-    navigator.clipboard.writeText(text.trim()).then(() => {
-      const btn = document.querySelector('.results-actions .btn-secondary');
-      btn.textContent = 'Copied!';
-      setTimeout(() => btn.textContent = 'Copy to Clipboard', 2000);
-    });
-  }
-
-  // ── Init ───────────────────────────────────────────────────────────────────
-  document.getElementById('studentInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addStudentFromInput();
-  });
-  document.getElementById('groupCount').addEventListener('input', updateHint);
+// ═══════════════════════ STUDENTS ════════════════════════════
+function addStudent(name) {
+  name = normalizeName(name);
+  if (!name) return false;
+  if (students.includes(name)) return false;
+  if (students.length >= 100) { alert('Maximum of 100 students reached.'); return false; }
+  students.push(name);
+  return true;
+}
+function addStudentFromInput() {
+  const inp = document.getElementById('studentInput');
+  if (addStudent(inp.value)) { inp.value = ''; render(); }
+  inp.focus();
+}
+function bulkAdd() {
+  const ta = document.getElementById('bulkInput');
+  ta.value.split('\n').map(normalizeName).filter(Boolean).forEach(n => addStudent(n));
+  ta.value = '';
   render();
+}
+function removeStudent(name) {
+  students    = students.filter(s=>s!==name);
+  separations = separations.filter(([a,b])=>a!==name&&b!==name);
+  togethers   = togethers.filter(([a,b])=>a!==name&&b!==name);
+  render();
+}
+function clearAll() {
+  students=[]; separations=[]; togethers=[];
+  render();
+  document.getElementById('resultsCard').style.display='none';
+}
 
-  // ── Google Classroom Integration ───────────────────────────────────────────
-  const GC_CLIENT_ID = '398480339629-vlcfurf5lc6t99l9dhurpmbo96vc831v.apps.googleusercontent.com';
-  const GC_SCOPES    = 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.rosters.readonly profile email';
+// ═══════════════════════ RULES ═══════════════════════════════
+function addSep() {
+  const a=document.getElementById('sepA').value, b=document.getElementById('sepB').value;
+  if(!a||!b) return alert('Please select both students.');
+  if(a===b)  return alert('A student cannot be separated from themselves.');
+  if(pairExists(separations,a,b)) return alert('This separation rule already exists.');
+  if(pairExists(togethers,a,b)) return alert(`"${a}" and "${b}" are already a together rule.`);
+  separations.push([a,b]);
+  document.getElementById('sepA').value=''; document.getElementById('sepB').value='';
+  render();
+}
+function removeSep(i) { separations.splice(i,1); render(); }
 
-  let gcTokenClient  = null;
-  let gcAccessToken  = null;
+function addTog() {
+  const a=document.getElementById('togA').value, b=document.getElementById('togB').value;
+  if(!a||!b) return alert('Please select both students.');
+  if(a===b)  return alert('A student cannot be paired with themselves.');
+  if(pairExists(togethers,a,b)) return alert('This together rule already exists.');
+  if(pairExists(separations,a,b)) return alert(`"${a}" and "${b}" are already a separation rule.`);
+  togethers.push([a,b]);
+  document.getElementById('togA').value=''; document.getElementById('togB').value='';
+  render();
+}
+function removeTog(i) { togethers.splice(i,1); render(); }
 
-  function gcSignIn() {
-    if (!window.google) {
-      alert('Google Sign-In is still loading — please try again in a moment.');
-      return;
+// ═══════════════════════ GROUPS ══════════════════════════════
+function changeGroups(d) {
+  const inp=document.getElementById('groupCount');
+  inp.value=Math.max(2,Math.min(50,parseInt(inp.value||2)+d));
+  updateHint();
+}
+function updateHint() {
+  const n=students.length, g=parseInt(document.getElementById('groupCount').value)||2;
+  document.getElementById('groupHint').textContent = n===0?'~0 students per group':`~${Math.floor(n/g)}–${Math.ceil(n/g)} students per group`;
+}
+function buildClusters() {
+  const parent={};
+  students.forEach(s=>parent[s]=s);
+  function find(x){ if(parent[x]!==x) parent[x]=find(parent[x]); return parent[x]; }
+  togethers.forEach(([a,b])=>{ parent[find(a)]=find(b); });
+  const map={};
+  students.forEach(s=>{ const r=find(s); if(!map[r]) map[r]=[]; map[r].push(s); });
+  return Object.values(map);
+}
+function shuffle(arr) {
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function separatedFrom(name,grp) {
+  return separations.some(([a,b])=>(a===name&&grp.includes(b))||(b===name&&grp.includes(a)));
+}
+function generate() {
+  document.getElementById('errorBanner').style.display='none';
+  const n=students.length, g=Math.min(parseInt(document.getElementById('groupCount').value)||2,n);
+  if(n<2) return showError('Please add at least 2 students.');
+  if(g<2) return showError('Please set at least 2 groups.');
+  const maxSize=Math.ceil(n/g), clusters=buildClusters();
+  for(const cl of clusters) for(let i=0;i<cl.length;i++) for(let j=i+1;j<cl.length;j++)
+    if(pairExists(separations,cl[i],cl[j])) return showError(`"${cl[i]}" and "${cl[j]}" are set to be both together AND separated.`);
+  const oversized=clusters.find(c=>c.length>maxSize);
+  if(oversized) return showError(`A together-cluster of ${oversized.length} is too large for one group (max ${maxSize}). Add more groups.`);
+  const multi=clusters.filter(c=>c.length>1), singles=clusters.filter(c=>c.length===1).map(c=>c[0]);
+  let groups=null;
+  for(let attempt=0;attempt<3000;attempt++) {
+    const cand=Array.from({length:g},()=>[]);
+    let ok=true;
+    for(const cl of shuffle(multi)) {
+      const valid=cand.filter(grp=>grp.length+cl.length<=maxSize&&!cl.some(m=>separatedFrom(m,grp)));
+      if(!valid.length){ok=false;break;}
+      valid.reduce((a,b)=>a.length<=b.length?a:b).push(...cl);
     }
-    if (!gcTokenClient) {
-      gcTokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: GC_CLIENT_ID,
-        scope: GC_SCOPES,
-        callback: gcHandleToken,
-      });
+    if(!ok) continue;
+    for(const st of shuffle(singles)) {
+      const valid=cand.filter(grp=>grp.length<maxSize&&!separatedFrom(st,grp));
+      if(!valid.length){ok=false;break;}
+      valid.reduce((a,b)=>a.length<=b.length?a:b).push(st);
     }
-    gcTokenClient.requestAccessToken({ prompt: 'consent' });
+    if(ok){groups=cand;break;}
   }
+  if(!groups) return showError('Could not satisfy all rules. Try more groups or fewer rules.');
+  renderResults(groups);
+}
+function showError(msg) { const b=document.getElementById('errorBanner'); b.textContent=msg; b.style.display='block'; }
 
-  async function gcHandleToken(response) {
-    if (response.error) {
-      gcSetStatus('error', 'Sign-in failed: ' + response.error);
-      return;
-    }
-    gcAccessToken = response.access_token;
-
-    // Fetch user profile
-    try {
-      const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: 'Bearer ' + gcAccessToken }
-      });
-      const profile = await profileRes.json();
-      document.getElementById('gcUserName').textContent = profile.name || profile.email || 'your account';
-      document.getElementById('gcAvatar').src = profile.picture || '';
-    } catch (_) {
-      document.getElementById('gcUserName').textContent = 'your account';
-    }
-
-    document.getElementById('gcNotSignedIn').style.display = 'none';
-    document.getElementById('gcSignedIn').style.display    = 'block';
-    gcSetStatus('loading', 'Loading your classes…');
-    gcLoadCourses();
+// ═══════════════════════ RENDER ══════════════════════════════
+function render() {
+  const sepS=new Set(separations.flat()), togS=new Set(togethers.flat());
+  const list=document.getElementById('studentList');
+  list.innerHTML='';
+  if(students.length===0) { list.innerHTML='<p class="empty-state">No students added yet.</p>'; }
+  else {
+    students.forEach(name=>{
+      const iS=sepS.has(name), iT=togS.has(name);
+      const cls=iS&&iT?'both-highlight':iS?'sep-highlight':iT?'tog-highlight':'';
+      const chip=document.createElement('div');
+      chip.className='student-chip'+(cls?' '+cls:'');
+      chip.innerHTML=`<span>${name}</span><button onclick="removeStudent('${esc(name)}')" title="Remove">×</button>`;
+      list.appendChild(chip);
+    });
   }
+  document.getElementById('studentCount').textContent=`${students.length} / 100`;
+  [['sepA','— Student A —'],['sepB','— Student B —'],['togA','— Student A —'],['togB','— Student B —']].forEach(([id,ph])=>{
+    const sel=document.getElementById(id); const val=sel.value;
+    sel.innerHTML=`<option value="">${ph}</option>`;
+    students.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
+    if(students.includes(val)) sel.value=val;
+  });
+  const sl=document.getElementById('sepList'); sl.innerHTML='';
+  if(separations.length===0) sl.innerHTML='<p class="empty-state">No separation rules added.</p>';
+  else separations.forEach(([a,b],i)=>{ const d=document.createElement('div'); d.className='rule-item sep'; d.innerHTML=`<div class="names"><span>${a}</span><span class="sym">≠</span><span>${b}</span></div><button class="btn btn-danger" style="padding:4px 12px;font-size:0.8rem;" onclick="removeSep(${i})">Remove</button>`; sl.appendChild(d); });
+  const tl=document.getElementById('togList'); tl.innerHTML='';
+  if(togethers.length===0) tl.innerHTML='<p class="empty-state">No together rules added.</p>';
+  else togethers.forEach(([a,b],i)=>{ const d=document.createElement('div'); d.className='rule-item tog'; d.innerHTML=`<div class="names"><span>${a}</span><span class="sym">=</span><span>${b}</span></div><button class="btn btn-danger" style="padding:4px 12px;font-size:0.8rem;" onclick="removeTog(${i})">Remove</button>`; tl.appendChild(d); });
+  document.getElementById('sepCount').textContent=`${separations.length} rule${separations.length!==1?'s':''}`;
+  document.getElementById('togCount').textContent=`${togethers.length} rule${togethers.length!==1?'s':''}`;
+  // Update hidden banner
+  const banner=document.getElementById('hiddenRulesBanner');
+  if(!teacherMode && (separations.length>0||togethers.length>0)) banner.style.display='flex';
+  else banner.style.display='none';
+  updateHint();
+}
+function renderResults(groups) {
+  const card=document.getElementById('resultsCard'), grid=document.getElementById('resultsGrid');
+  grid.innerHTML='';
+  groups.forEach((members,i)=>{
+    const c=GROUP_COLORS[i%GROUP_COLORS.length], div=document.createElement('div');
+    div.className='group-card'; div.style.background=c.bg; div.style.borderColor=c.border;
+    const items=members.length===0?'<li style="color:#94a3b8;font-size:0.85rem;">Empty</li>':members.map(m=>`<li><span style="background:${c.dot}"></span>${m}</li>`).join('');
+    div.innerHTML=`<h3 style="color:${c.text}">Group ${i+1} <span style="font-weight:400;text-transform:none;letter-spacing:0;">(${members.length})</span></h3><ul>${items}</ul>`;
+    grid.appendChild(div);
+  });
+  card.style.display='block'; card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function copyResults() {
+  const cards=document.querySelectorAll('.group-card'); let text='';
+  cards.forEach((c,i)=>{ const names=[...c.querySelectorAll('li')].map(l=>l.textContent.trim()); text+=`Group ${i+1}:\n${names.map(n=>`  - ${n}`).join('\n')}\n\n`; });
+  navigator.clipboard.writeText(text.trim()).then(()=>{ const b=document.querySelector('.results-actions .btn-secondary'); b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy to Clipboard',2000); });
+}
 
-  async function gcLoadCourses() {
-    const select = document.getElementById('courseSelect');
-    select.innerHTML = '<option value="">Loading…</option>';
-    document.getElementById('gcLoadBtn').disabled = true;
+// ═════════════════════ NAME PICKER ═══════════════════════════
+function refreshPicker() {
+  const hasSt=students.length>0;
+  document.getElementById('pickerNoStudents').style.display=hasSt?'none':'block';
+  document.getElementById('pickerMain').style.display=hasSt?'block':'none';
+  if(hasSt && document.getElementById('spinnerName').textContent==='?') {
+    document.getElementById('spinnerName').textContent=students[Math.floor(Math.random()*students.length)];
+  }
+}
+function spinPicker() {
+  if(students.length===0) return;
+  const winner=students[Math.floor(Math.random()*students.length)];
+  const display=document.getElementById('spinnerName');
+  const btn=document.getElementById('spinBtn');
+  const banner=document.getElementById('winnerBanner');
+  btn.disabled=true; banner.style.display='none';
+  display.classList.remove('winner-glow');
 
-    try {
-      let courses = [];
-      let pageToken = '';
-      do {
-        const url = 'https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE&pageSize=30'
-          + (pageToken ? '&pageToken=' + pageToken : '');
-        const res  = await fetch(url, { headers: { Authorization: 'Bearer ' + gcAccessToken } });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error.message);
-        (data.courses || []).forEach(c => courses.push(c));
-        pageToken = data.nextPageToken || '';
-      } while (pageToken);
+  const delays=[60,70,80,90,100,120,150,190,240,300,380,480];
+  let step=0;
+  function tick() {
+    if(step<delays.length) {
+      const rand=students[Math.floor(Math.random()*students.length)];
+      display.classList.add('flash');
+      setTimeout(()=>{ display.textContent=rand; display.classList.remove('flash'); },30);
+      setTimeout(tick, delays[step]);
+      step++;
+    } else {
+      display.textContent=winner;
+      display.classList.add('winner-glow');
+      banner.textContent=`🎉 ${winner} 🎉`;
+      banner.style.display='block';
+      btn.disabled=false;
+      btn.textContent='🎲 Pick Again!';
+      // Add to history
+      pickerHistory.unshift(winner);
+      if(pickerHistory.length>10) pickerHistory.pop();
+      renderHistory();
+    }
+  }
+  tick();
+}
+function renderHistory() {
+  const list=document.getElementById('historyList');
+  if(pickerHistory.length===0) { list.innerHTML='<span style="color:#94a3b8;font-size:0.85rem;">No one picked yet.</span>'; return; }
+  list.innerHTML=pickerHistory.map((n,i)=>`<span class="history-chip">${i===0?'<strong>'+n+'</strong>':n}</span>`).join('');
+}
+function clearHistory() { pickerHistory=[]; renderHistory(); }
 
-      select.innerHTML = '<option value="">— Select a class —</option>';
+// ═════════════════════ STOPWATCH ═════════════════════════════
+let swRunning=false, swStart=0, swElapsed=0, swInterval=null, swLaps=[];
+function swFormat(ms) {
+  const h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000), s=Math.floor((ms%60000)/1000), t=Math.floor((ms%1000)/100);
+  if(h>0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${t}`;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${t}`;
+}
+function swToggle() {
+  if(swRunning) {
+    swElapsed+=Date.now()-swStart; swRunning=false;
+    clearInterval(swInterval);
+    document.getElementById('swStartBtn').textContent='Resume';
+    document.getElementById('swLapBtn').disabled=true;
+  } else {
+    swStart=Date.now(); swRunning=true;
+    swInterval=setInterval(()=>{ document.getElementById('swDisplay').textContent=swFormat(swElapsed+Date.now()-swStart); },100);
+    document.getElementById('swStartBtn').textContent='Pause';
+    document.getElementById('swLapBtn').disabled=false;
+  }
+}
+function swReset() {
+  clearInterval(swInterval); swRunning=false; swElapsed=0; swLaps=[];
+  document.getElementById('swDisplay').textContent='00:00.0';
+  document.getElementById('swStartBtn').textContent='Start';
+  document.getElementById('swLapBtn').disabled=true;
+  document.getElementById('swLaps').innerHTML='';
+}
+function swLap() {
+  const t=swElapsed+Date.now()-swStart; swLaps.push(t);
+  const div=document.getElementById('swLaps');
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;justify-content:space-between;font-size:0.85rem;padding:4px 8px;background:#f8fafc;border-radius:6px;';
+  row.innerHTML=`<span style="color:#94a3b8;">Lap ${swLaps.length}</span><span style="font-weight:600;font-family:monospace;">${swFormat(t)}</span>`;
+  div.insertBefore(row,div.firstChild);
+}
 
-      if (courses.length === 0) {
-        select.innerHTML = '<option value="">No active classes found</option>';
-        gcSetStatus('error', 'No active classes found in your Google Classroom account.');
-        return;
+// ═════════════════════ COUNTDOWN ═════════════════════════════
+let cdRunning=false, cdRemaining=300, cdInterval=null;
+function cdFormat(s) { return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
+function cdInputChanged() {
+  if(cdRunning) return;
+  const m=parseInt(document.getElementById('cdMinInput').value)||0;
+  const s=parseInt(document.getElementById('cdSecInput').value)||0;
+  cdRemaining=m*60+s;
+  const d=document.getElementById('cdDisplay');
+  d.textContent=cdFormat(cdRemaining); d.className='timer-display';
+  const fd=document.getElementById('tfsDisplay');
+  if(fd&&document.getElementById('tfsOverlay').classList.contains('active')){tfsRemaining=cdRemaining;fd.textContent=cdFormat(cdRemaining);fd.className='tfs-display';}
+}
+function cdAdjust(unit,delta) {
+  if(cdRunning) return;
+  if(unit==='min') { let v=parseInt(document.getElementById('cdMinInput').value)||0; v=Math.max(0,Math.min(99,v+delta)); document.getElementById('cdMinInput').value=v; }
+  else { let v=parseInt(document.getElementById('cdSecInput').value)||0; v=Math.max(0,Math.min(55,v+delta)); document.getElementById('cdSecInput').value=v; }
+  cdInputChanged();
+}
+function cdPreset(m,s) {
+  if(cdRunning) { cdRunning=false; clearInterval(cdInterval); document.getElementById('cdStartBtn').textContent='Start'; }
+  document.getElementById('cdMinInput').value=m; document.getElementById('cdSecInput').value=s;
+  cdInputChanged();
+}
+function cdToggle() {
+  if(cdRunning) {
+    cdRunning=false; clearInterval(cdInterval);
+    document.getElementById('cdStartBtn').textContent='Resume';
+  } else {
+    if(cdRemaining<=0) { cdReset(); return; }
+    cdRunning=true;
+    document.getElementById('cdStartBtn').textContent='Pause';
+    cdInterval=setInterval(()=>{
+      cdRemaining--;
+      syncCdDisplays();
+      if(cdRemaining<=0) {
+        cdRunning=false; clearInterval(cdInterval);
+        document.getElementById('cdStartBtn').textContent='Start';
+        cdBeep();
       }
+    },1000);
+  }
+}
+function cdReset() {
+  cdRunning=false; clearInterval(cdInterval);
+  const m=parseInt(document.getElementById('cdMinInput').value)||0;
+  const s=parseInt(document.getElementById('cdSecInput').value)||0;
+  cdRemaining=m*60+s;
+  const d=document.getElementById('cdDisplay');
+  d.textContent=cdFormat(cdRemaining); d.className='timer-display';
+  document.getElementById('cdStartBtn').textContent='Start';
+  // sync fullscreen if open
+  const fd=document.getElementById('tfsDisplay');
+  if(fd&&document.getElementById('tfsOverlay').classList.contains('active')){
+    tfsRemaining=cdRemaining; fd.textContent=cdFormat(cdRemaining); fd.className='tfs-display';
+  }
+}
+function cdBeep() {
+  try {
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    [0,0.3,0.6].forEach(t=>{ const o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value=880; g.gain.setValueAtTime(0.4,ctx.currentTime+t); g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.25); o.start(ctx.currentTime+t); o.stop(ctx.currentTime+t+0.25); });
+  } catch(e) {}
+}
 
-      courses.forEach(course => {
-        const opt = document.createElement('option');
-        opt.value       = course.id;
-        opt.textContent = course.name + (course.section ? ' · ' + course.section : '');
-        select.appendChild(opt);
-      });
+// ═══════════════════ QUESTION TIMERS ════════════════════════
+const qtState={};
+function qtKey(g,i){return `${g}-${i}`;}
+function qtToggle(grade,idx) {
+  const k=qtKey(grade,idx);
+  if(!qtState[k]) { const secs=parseInt(document.getElementById(`ts-${k}`).value)||300; qtState[k]={remaining:secs,running:false,interval:null}; }
+  const st=qtState[k];
+  const btn=document.querySelector(`#timer-${k} .btn-primary`);
+  if(st.running) {
+    clearInterval(st.interval); st.running=false; if(btn) btn.textContent='Resume';
+  } else {
+    if(st.remaining<=0) { qtReset(grade,idx); return; }
+    st.running=true; if(btn) btn.textContent='Pause';
+    st.interval=setInterval(()=>{
+      st.remaining--;
+      const d=document.getElementById(`td-${k}`);
+      if(d){ d.textContent=cdFormat(st.remaining); d.className='q-timer-display'+(st.remaining<=10&&st.remaining>0?' warning':st.remaining===0?' done':''); }
+      if(st.remaining<=0){ clearInterval(st.interval); st.running=false; if(btn) btn.textContent='Start'; cdBeep(); }
+    },1000);
+  }
+}
+function qtReset(grade,idx) {
+  const k=qtKey(grade,idx);
+  if(qtState[k]) { clearInterval(qtState[k].interval); delete qtState[k]; }
+  const secs=parseInt(document.getElementById(`ts-${k}`).value)||300;
+  const d=document.getElementById(`td-${k}`);
+  if(d){ d.textContent=cdFormat(secs); d.className='q-timer-display'; }
+  const btn=document.querySelector(`#timer-${k} .btn-primary`);
+  if(btn) btn.textContent='Start';
+}
+// Update timer when select changes
+document.querySelectorAll('[id^="ts-"]').forEach(sel=>{
+  sel.addEventListener('change',()=>{
+    const [,grade,idx]=sel.id.split('-');
+    const k=qtKey(grade,idx);
+    if(!qtState[k] || !qtState[k].running) qtReset(grade,idx);
+  });
+});
 
-      gcSetStatus('success', `Found ${courses.length} class${courses.length !== 1 ? 'es' : ''}. Select one and click Load Roster.`);
-    } catch (err) {
-      gcSetStatus('error', 'Could not load classes: ' + err.message);
-      select.innerHTML = '<option value="">— Error loading classes —</option>';
+// ═══════════════════ GRADE TABS ════════════════════════════
+function switchGrade(g) {
+  document.querySelectorAll('.grade-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.grade-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('grade-'+g).classList.add('active');
+  document.querySelectorAll('.grade-tab').forEach(t=>{ if(t.textContent.toLowerCase().includes(g.replace('g',''))) t.classList.add('active'); });
+}
+
+// ═══════════════════ GOOGLE CLASSROOM ═══════════════════════
+const GC_CLIENT_ID='398480339629-vlcfurf5lc6t99l9dhurpmbo96vc831v.apps.googleusercontent.com';
+const GC_SCOPES='https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.rosters.readonly profile email';
+let gcTokenClient=null, gcAccessToken=null;
+function gcSignIn() {
+  if(!window.google){alert('Google Sign-In still loading — try again.');return;}
+  if(!gcTokenClient) gcTokenClient=google.accounts.oauth2.initTokenClient({client_id:GC_CLIENT_ID,scope:GC_SCOPES,callback:gcHandleToken});
+  gcTokenClient.requestAccessToken({prompt:'consent'});
+}
+async function gcHandleToken(r) {
+  if(r.error){gcSetStatus('error','Sign-in failed: '+r.error);return;}
+  gcAccessToken=r.access_token;
+  try { const p=await(await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+gcAccessToken}})).json(); document.getElementById('gcUserName').textContent=p.name||p.email||'your account'; document.getElementById('gcAvatar').src=p.picture||''; } catch(_){}
+  document.getElementById('gcNotSignedIn').style.display='none'; document.getElementById('gcSignedIn').style.display='block';
+  gcSetStatus('loading','Loading your classes…'); gcLoadCourses();
+}
+async function gcLoadCourses() {
+  const sel=document.getElementById('courseSelect'); sel.innerHTML='<option value="">Loading…</option>'; document.getElementById('gcLoadBtn').disabled=true;
+  try {
+    let courses=[],pt='';
+    do { const u='https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE&pageSize=30'+(pt?'&pageToken='+pt:''); const d=await(await fetch(u,{headers:{Authorization:'Bearer '+gcAccessToken}})).json(); if(d.error) throw new Error(d.error.message); (d.courses||[]).forEach(c=>courses.push(c)); pt=d.nextPageToken||''; } while(pt);
+    sel.innerHTML='<option value="">— Select a class —</option>';
+    if(!courses.length){sel.innerHTML='<option value="">No active classes found</option>';gcSetStatus('error','No active classes found.');return;}
+    courses.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name+(c.section?' · '+c.section:'');sel.appendChild(o);});
+    gcSetStatus('success',`Found ${courses.length} class${courses.length!==1?'es':''}. Select one and click Load Roster.`);
+  } catch(e){gcSetStatus('error','Could not load classes: '+e.message);sel.innerHTML='<option value="">— Error loading classes —</option>';}
+}
+function gcCourseChanged(){const v=document.getElementById('courseSelect').value;document.getElementById('gcLoadBtn').disabled=!v;if(!v)gcSetStatus('','');}
+async function gcLoadRoster() {
+  const sel=document.getElementById('courseSelect'),cid=sel.value,cn=sel.options[sel.selectedIndex].textContent;
+  if(!cid) return;
+  gcSetStatus('loading',`Loading students from "${cn}"…`); document.getElementById('gcLoadBtn').disabled=true;
+  try {
+    let roster=[],pt='';
+    do { const u=`https://classroom.googleapis.com/v1/courses/${cid}/students?pageSize=200`+(pt?'&pageToken='+pt:''); const d=await(await fetch(u,{headers:{Authorization:'Bearer '+gcAccessToken}})).json(); if(d.error) throw new Error(d.error.message); (d.students||[]).forEach(s=>roster.push(s)); pt=d.nextPageToken||''; } while(pt);
+    if(!roster.length){gcSetStatus('error','No students found.');document.getElementById('gcLoadBtn').disabled=false;return;}
+    let added=0,skipped=0;
+    roster.forEach(s=>{const n=s.profile?.name?.fullName;if(n&&addStudent(n))added++;else skipped++;});
+    render(); gcSetStatus('success',`Added ${added} student${added!==1?'s':''} from "${cn}".`+(skipped>0?` (${skipped} skipped)`:''));
+  } catch(e){gcSetStatus('error','Could not load students: '+e.message);}
+  document.getElementById('gcLoadBtn').disabled=false;
+}
+function gcSignOut() {
+  if(gcAccessToken){google.accounts.oauth2.revoke(gcAccessToken,()=>{});gcAccessToken=null;}
+  gcTokenClient=null;
+  document.getElementById('gcSignedIn').style.display='none'; document.getElementById('gcNotSignedIn').style.display='block';
+  document.getElementById('gcStatus').className='gc-status'; document.getElementById('gcStatus').textContent='';
+  document.getElementById('courseSelect').innerHTML='<option value="">— Select a class —</option>';
+}
+function gcSetStatus(type,msg){const el=document.getElementById('gcStatus');el.textContent=msg;el.className='gc-status'+(type?' '+type:'');}
+
+// ═══════════════════ RUBRIC TIMER ════════════════════════════
+let rtbRunning=false, rtbRemaining=300, rtbInterval=null;
+function rtbPreset(m,s){
+  if(rtbRunning){clearInterval(rtbInterval);rtbRunning=false;document.getElementById('rtbStartBtn').textContent='Start';}
+  rtbRemaining=m*60+s;
+  const d=document.getElementById('rtbDisplay'); d.textContent=cdFormat(rtbRemaining); d.className='rtb-display';
+}
+function rtbToggle(){
+  if(rtbRunning){
+    clearInterval(rtbInterval); rtbRunning=false;
+    document.getElementById('rtbStartBtn').textContent='Resume';
+  } else {
+    if(rtbRemaining<=0){rtbReset();return;}
+    rtbRunning=true; document.getElementById('rtbStartBtn').textContent='Pause';
+    rtbInterval=setInterval(()=>{
+      rtbRemaining--;
+      const d=document.getElementById('rtbDisplay');
+      d.textContent=cdFormat(rtbRemaining);
+      d.className='rtb-display'+(rtbRemaining<=10&&rtbRemaining>0?' warning':rtbRemaining===0?' done':'');
+      if(rtbRemaining<=0){clearInterval(rtbInterval);rtbRunning=false;document.getElementById('rtbStartBtn').textContent='Start';cdBeep();}
+    },1000);
+  }
+}
+function rtbReset(){
+  clearInterval(rtbInterval); rtbRunning=false; rtbRemaining=300;
+  const d=document.getElementById('rtbDisplay'); d.textContent=cdFormat(300); d.className='rtb-display';
+  document.getElementById('rtbStartBtn').textContent='Start';
+}
+
+// ═══════════════════ TIMER FULLSCREEN ════════════════════════
+let tfsRunning=false, tfsRemaining=300, tfsInterval=null;
+function openTimerFs(){
+  tfsRemaining=cdRemaining||300;
+  const d=document.getElementById('tfsDisplay'); d.textContent=cdFormat(tfsRemaining); d.className='tfs-display';
+  document.getElementById('tfsStartBtn').textContent=cdRunning?'Pause':'Start';
+  if(cdRunning){ tfsRunning=true; document.getElementById('tfsStartBtn').textContent='Pause'; tfsInterval=setInterval(tfsTick,1000); }
+  document.getElementById('tfsOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeTimerFs(){
+  clearInterval(tfsInterval); tfsRunning=false;
+  document.getElementById('tfsOverlay').classList.remove('active');
+  document.body.style.overflow='';
+}
+function tfsPreset(m,s){
+  if(tfsRunning){clearInterval(tfsInterval);tfsRunning=false;}
+  tfsRemaining=m*60+s; cdRemaining=tfsRemaining;
+  const d=document.getElementById('tfsDisplay'); d.textContent=cdFormat(tfsRemaining); d.className='tfs-display';
+  document.getElementById('tfsStartBtn').textContent='Start';
+  const cd=document.getElementById('cdDisplay'); cd.textContent=cdFormat(cdRemaining); cd.className='timer-display';
+}
+function tfsToggle(){
+  if(tfsRunning){
+    clearInterval(tfsInterval); tfsRunning=false;
+    document.getElementById('tfsStartBtn').textContent='Resume';
+    if(cdRunning){clearInterval(cdInterval);cdRunning=false;document.getElementById('cdStartBtn').textContent='Resume';}
+  } else {
+    if(tfsRemaining<=0){tfsReset();return;}
+    tfsRunning=true; document.getElementById('tfsStartBtn').textContent='Pause';
+    if(!cdRunning){cdRunning=true; document.getElementById('cdStartBtn').textContent='Pause';
+      cdInterval=setInterval(()=>{ cdRemaining--; syncCdDisplays(); if(cdRemaining<=0){clearInterval(cdInterval);cdRunning=false;document.getElementById('cdStartBtn').textContent='Start';cdBeep();}},1000);
     }
+    tfsInterval=setInterval(tfsTick,1000);
   }
-
-  function gcCourseChanged() {
-    const val = document.getElementById('courseSelect').value;
-    document.getElementById('gcLoadBtn').disabled = !val;
-    if (!val) gcSetStatus('', '');
+}
+function tfsTick(){
+  tfsRemaining--;
+  const d=document.getElementById('tfsDisplay');
+  d.textContent=cdFormat(tfsRemaining);
+  d.className='tfs-display'+(tfsRemaining<=10&&tfsRemaining>0?' warning':tfsRemaining===0?' done':'');
+  if(tfsRemaining<=0){clearInterval(tfsInterval);tfsRunning=false;document.getElementById('tfsStartBtn').textContent='Start';cdBeep();}
+}
+function tfsReset(){
+  clearInterval(tfsInterval); tfsRunning=false;
+  tfsRemaining=cdRemaining>0?cdRemaining:300;
+  const d=document.getElementById('tfsDisplay'); d.textContent=cdFormat(tfsRemaining); d.className='tfs-display';
+  document.getElementById('tfsStartBtn').textContent='Start';
+}
+function syncCdDisplays(){
+  const d=document.getElementById('cdDisplay');
+  d.textContent=cdFormat(cdRemaining);
+  d.className='timer-display'+(cdRemaining<=10&&cdRemaining>0?' warning':cdRemaining===0?' done':'');
+  const fd=document.getElementById('tfsDisplay');
+  if(fd&&document.getElementById('tfsOverlay').classList.contains('active')){
+    tfsRemaining=cdRemaining;
+    fd.textContent=cdFormat(cdRemaining);
+    fd.className='tfs-display'+(cdRemaining<=10&&cdRemaining>0?' warning':cdRemaining===0?' done':'');
   }
+}
 
-  async function gcLoadRoster() {
-    const select   = document.getElementById('courseSelect');
-    const courseId = select.value;
-    const courseName = select.options[select.selectedIndex].textContent;
-    if (!courseId) return;
-
-    gcSetStatus('loading', `Loading students from "${courseName}"…`);
-    document.getElementById('gcLoadBtn').disabled = true;
-
-    try {
-      let roster = [];
-      let pageToken = '';
-      do {
-        const url = `https://classroom.googleapis.com/v1/courses/${courseId}/students?pageSize=200`
-          + (pageToken ? '&pageToken=' + pageToken : '');
-        const res  = await fetch(url, { headers: { Authorization: 'Bearer ' + gcAccessToken } });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error.message);
-        (data.students || []).forEach(s => roster.push(s));
-        pageToken = data.nextPageToken || '';
-      } while (pageToken);
-
-      if (roster.length === 0) {
-        gcSetStatus('error', 'No students found in this class.');
-        document.getElementById('gcLoadBtn').disabled = false;
-        return;
-      }
-
-      let added = 0;
-      let skipped = 0;
-      roster.forEach(s => {
-        const name = s.profile && s.profile.name ? s.profile.name.fullName : null;
-        if (name && addStudent(name)) { added++; } else { skipped++; }
-      });
-
-      render();
-      let msg = `Added ${added} student${added !== 1 ? 's' : ''} from "${courseName}".`;
-      if (skipped > 0) msg += ` (${skipped} already in list or skipped)`;
-      gcSetStatus('success', msg);
-    } catch (err) {
-      gcSetStatus('error', 'Could not load students: ' + err.message);
-    }
-
-    document.getElementById('gcLoadBtn').disabled = false;
+// ═══════════════════ QUESTION FULLSCREEN ═════════════════════
+let qfsGrade=null, qfsIdx=null, qfsRunning=false, qfsRemaining=300, qfsInterval=null;
+function openQfs(grade,idx){
+  qfsGrade=grade; qfsIdx=idx;
+  const k=`${grade}-${idx}`;
+  document.getElementById('qfsTag').textContent=document.getElementById(`tag-${k}`).textContent;
+  document.getElementById('qfsQuestion').innerHTML=document.getElementById(`qtext-${k}`).innerHTML;
+  const secs=parseInt(document.getElementById(`ts-${k}`).value)||300;
+  if(qfsRunning){clearInterval(qfsInterval);qfsRunning=false;}
+  qfsRemaining=secs;
+  const d=document.getElementById('qfsTimerDisplay'); d.textContent=cdFormat(secs); d.className='qfs-timer-display';
+  document.getElementById('qfsStartBtn').textContent='Start';
+  const sol=SOLUTIONS[k];
+  const ss=document.getElementById('qfsSolSection');
+  const sb=document.getElementById('qfsSolBody');
+  const solBtn=document.getElementById('qfsSolBtn');
+  if(sol){sb.innerHTML='<ol>'+sol.map(s=>`<li>${s}</li>`).join('')+'</ol>';ss.style.display='';sb.className='qfs-sol-body';solBtn.textContent='💡 Show Solution';}
+  else{ss.style.display='none';}
+  document.getElementById('qfsOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeQfs(){
+  if(qfsRunning){clearInterval(qfsInterval);qfsRunning=false;}
+  document.getElementById('qfsOverlay').classList.remove('active');
+  document.body.style.overflow='';
+}
+function qfsPreset(secs){
+  if(qfsRunning){clearInterval(qfsInterval);qfsRunning=false;}
+  qfsRemaining=secs;
+  const d=document.getElementById('qfsTimerDisplay'); d.textContent=cdFormat(secs); d.className='qfs-timer-display';
+  document.getElementById('qfsStartBtn').textContent='Start';
+}
+function qfsToggle(){
+  if(qfsRunning){
+    clearInterval(qfsInterval); qfsRunning=false;
+    document.getElementById('qfsStartBtn').textContent='Resume';
+  } else {
+    if(qfsRemaining<=0){qfsPreset(300);return;}
+    qfsRunning=true; document.getElementById('qfsStartBtn').textContent='Pause';
+    qfsInterval=setInterval(()=>{
+      qfsRemaining--;
+      const d=document.getElementById('qfsTimerDisplay');
+      d.textContent=cdFormat(qfsRemaining);
+      d.className='qfs-timer-display'+(qfsRemaining<=10&&qfsRemaining>0?' warning':qfsRemaining===0?' done':'');
+      if(qfsRemaining<=0){clearInterval(qfsInterval);qfsRunning=false;document.getElementById('qfsStartBtn').textContent='Start';cdBeep();}
+    },1000);
   }
+}
+function qfsReset(){
+  if(qfsRunning){clearInterval(qfsInterval);qfsRunning=false;}
+  const k=qfsGrade&&qfsIdx!==null?`${qfsGrade}-${qfsIdx}`:null;
+  const secs=k?parseInt(document.getElementById(`ts-${k}`).value)||300:300;
+  qfsRemaining=secs;
+  const d=document.getElementById('qfsTimerDisplay'); d.textContent=cdFormat(secs); d.className='qfs-timer-display';
+  document.getElementById('qfsStartBtn').textContent='Start';
+}
+function toggleQfsSol(){
+  const b=document.getElementById('qfsSolBody'), btn=document.getElementById('qfsSolBtn');
+  const open=b.classList.toggle('open');
+  btn.textContent=open?'🔒 Hide Solution':'💡 Show Solution';
+}
 
-  function gcSignOut() {
-    if (gcAccessToken) {
-      google.accounts.oauth2.revoke(gcAccessToken, () => {});
-      gcAccessToken = null;
-    }
-    gcTokenClient = null;
-    document.getElementById('gcSignedIn').style.display    = 'none';
-    document.getElementById('gcNotSignedIn').style.display = 'block';
-    document.getElementById('gcStatus').className          = 'gc-status';
-    document.getElementById('gcStatus').textContent        = '';
-    document.getElementById('courseSelect').innerHTML      = '<option value="">— Select a class —</option>';
-  }
+// ═══════════════════ SOLUTION TOGGLES ════════════════════════
+const SOLUTIONS={
+  'g6-0':['Factor pairs of 24: 1×24, 2×12, 3×8, 4×6','Biggest perimeter: 1×24 → P = 2(1+24) = 50 units','Smallest perimeter: 4×6 → P = 2(4+6) = 20 units','For 36 tiles: pairs 1×36, 2×18, 3×12, 4×9, 6×6. Smallest perimeter = 6×6 (P = 24)'],
+  'g6-1':['3 + 5 = 8 total parts. Each part = 400 ÷ 8 = 50 mL','For 400 mL: red = 150 mL, blue = 250 mL','With 45 mL red: 45÷3 = 15 units → blue = 75 mL, total = 120 mL purple','50 mL purple: red = 18.75 mL, blue = 31.25 mL — possible but not whole numbers'],
+  'g6-2':['Midnight: −8°C,  Noon: −8 + 15 = +7°C,  Evening: 7 − 9 = −2°C','Temperature crosses 0°C between midnight and noon','Rising 15° in 12 hours = 1.25°/hr. Time to reach 0°C: 8 ÷ 1.25 = 6.4 hours after midnight ≈ 6:24 AM'],
+  'g6-3':['Total cubes = 1 + 2 + 3 + … + n','Shortcut (Gauss): pair first and last → 5 pairs of 11 = 55 cubes for 10 steps','Formula: n(n+1) ÷ 2.  For 10 steps: 55.  For 100 steps: 5,050'],
+  'g7-0':['25% off → pay 75%. Extra 10% off → pay 90% of 75% = 67.5%','So total discount = 32.5%, NOT 35%!','With $60 at 32.5% off: max original price = $60 ÷ 0.675 ≈ $88.89','With 13% tax: max original price = $60 ÷ (0.675 × 1.13) ≈ $78.67'],
+  'g7-1':['Same direction: gap grows at 15 − 12 = 3 km/h → 6 km apart after 2 hours','Opposite directions: combined speed = 27 km/h → 54 km apart after 2 hours','One cyclist 9 km ahead (same direction): 9 ÷ 3 = 3 hours'],
+  'g7-2':['Let n = your number. Steps: n → 2n → 2n+10 → n+5 → n+5−n = 5. Always 5!','The algebra cancels your original number — that\'s the trick','To get original back: try "add 7, subtract 7" or "triple it, divide by 3"'],
+  'g7-3':['Area = 20 × 12 = 240 cm²,  Perimeter = 2(20+12) = 64 cm','Folded along length: 10 × 12 (P = 44 cm). Folded along width: 20 × 6 (P = 52 cm)','Same area, larger perimeter: cut into an L-shape or long thin strip — more edges = more perimeter'],
+  'g8-0':['Base 1.5 m: h = √(5²−1.5²) = √22.75 ≈ 4.77 m','Base 2.5 m: h = √(25−6.25) = √18.75 ≈ 4.33 m. Drop ≈ 0.44 m','For height exactly 4 m: base = √(25−16) = √9 = 3 m exactly'],
+  'g8-1':['Pattern: each square added needs 3 more toothpicks. Rule: T = 3n + 1','Check: 1→4 ✓, 2→7 ✓, 3→10 ✓','100 squares: T = 3(100)+1 = 301 toothpicks','100 toothpicks: 3n+1 = 100 → n = 33 squares (1 toothpick left over)'],
+  'g8-2':['V_cylinder = πr²h,  V_cone = ⅓πr²h → cylinder holds exactly 3 cones','This is always true regardless of the actual radius or height!','For a sphere with same r (h=2r): V_sphere = (4/3)πr³ = ⅔ × V_cylinder → fills about 2 cones'],
+  'g8-3':['A(t) = 20−2t,  B(t) = 14−t','Same height: 20−2t = 14−t → t = 6 hours, both at 8 cm','A burns out at t=10h, B at t=14h — A burns out first','If B lit 1 hour later: B(t) = 15−t. Equal: 20−2t = 15−t → t = 5h, both at 10 cm']
+};
+function toggleSol(grade,idx){
+  const k=`${grade}-${idx}`;
+  const b=document.getElementById(`sol-${k}`), btn=document.getElementById(`solbtn-${k}`);
+  const open=b.classList.toggle('open');
+  btn.textContent=open?'🔒 Hide Solution':'💡 Show Solution';
+}
+function initSolutions(){
+  Object.entries(SOLUTIONS).forEach(([k,steps])=>{
+    const el=document.getElementById(`sol-${k}`);
+    if(el) el.innerHTML='<ol>'+steps.map(s=>`<li>${s}</li>`).join('')+'</ol>';
+  });
+}
 
-  function gcSetStatus(type, msg) {
-    const el = document.getElementById('gcStatus');
-    el.textContent  = msg;
-    el.className    = 'gc-status' + (type ? ' ' + type : '');
-  }
+// ═══════════════════ INIT ═══════════════════════════════════
+document.getElementById('studentInput').addEventListener('keydown',e=>{if(e.key==='Enter')addStudentFromInput();});
+document.getElementById('groupCount').addEventListener('input',updateHint);
+render();
+initSolutions();
 </script>
 </body>
 </html>
