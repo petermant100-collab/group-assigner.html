@@ -480,7 +480,7 @@
 
     <!-- Stopwatch -->
     <div class="card">
-      <div class="card-title">⏱️ Stopwatch</div>
+      <div class="card-title">⏱️ Stopwatch <button class="btn-timer-fs" onclick="openSwFs()">⛶ Full Screen</button></div>
       <div class="timer-display" id="swDisplay">00:00.0</div>
       <div class="timer-btns">
         <button class="btn btn-primary"   id="swStartBtn"  onclick="swToggle()">Start</button>
@@ -868,6 +868,18 @@
 </div>
 </div>
 
+<!-- ═══════════ STOPWATCH FULLSCREEN OVERLAY ═══════════ -->
+<div id="swfsOverlay" class="tfs-overlay">
+  <button class="btn-tfs-close" onclick="closeSwFs()">✕ Close</button>
+  <div class="tfs-display" id="swfsDisplay">00:00.0</div>
+  <div class="tfs-btns">
+    <button class="btn-tfs-primary"   id="swfsStartBtn" onclick="swfsToggle()">Start</button>
+    <button class="btn-tfs-secondary" onclick="swfsReset()">Reset</button>
+    <button class="btn-tfs-secondary" id="swfsLapBtn"   onclick="swfsLap()" disabled>Lap</button>
+  </div>
+  <div id="swfsLaps" style="margin-top:24px;display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;width:100%;max-width:400px;"></div>
+</div>
+
 <!-- ═══════════ TIMER FULLSCREEN OVERLAY ═══════════ -->
 <div id="tfsOverlay" class="tfs-overlay">
   <button class="btn-tfs-close" onclick="closeTimerFs()">✕ Close</button>
@@ -1183,34 +1195,76 @@ function swFormat(ms) {
   if(h>0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${t}`;
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${t}`;
 }
+function swSyncDisplays(text) {
+  document.getElementById('swDisplay').textContent=text;
+  const fd=document.getElementById('swfsDisplay');
+  if(fd&&document.getElementById('swfsOverlay').classList.contains('active')) fd.textContent=text;
+}
+function swSyncBtns(startText, lapDisabled) {
+  document.getElementById('swStartBtn').textContent=startText;
+  document.getElementById('swLapBtn').disabled=lapDisabled;
+  const sb=document.getElementById('swfsStartBtn'); if(sb) sb.textContent=startText;
+  const lb=document.getElementById('swfsLapBtn');   if(lb) lb.disabled=lapDisabled;
+}
 function swToggle() {
   if(swRunning) {
     swElapsed+=Date.now()-swStart; swRunning=false;
     clearInterval(swInterval);
-    document.getElementById('swStartBtn').textContent='Resume';
-    document.getElementById('swLapBtn').disabled=true;
+    swSyncBtns('Resume', true);
   } else {
     swStart=Date.now(); swRunning=true;
-    swInterval=setInterval(()=>{ document.getElementById('swDisplay').textContent=swFormat(swElapsed+Date.now()-swStart); },100);
-    document.getElementById('swStartBtn').textContent='Pause';
-    document.getElementById('swLapBtn').disabled=false;
+    swInterval=setInterval(()=>{ swSyncDisplays(swFormat(swElapsed+Date.now()-swStart)); },100);
+    swSyncBtns('Pause', false);
   }
 }
 function swReset() {
   clearInterval(swInterval); swRunning=false; swElapsed=0; swLaps=[];
-  document.getElementById('swDisplay').textContent='00:00.0';
-  document.getElementById('swStartBtn').textContent='Start';
-  document.getElementById('swLapBtn').disabled=true;
+  swSyncDisplays('00:00.0');
+  swSyncBtns('Start', true);
   document.getElementById('swLaps').innerHTML='';
+  const swfsL=document.getElementById('swfsLaps'); if(swfsL) swfsL.innerHTML='';
 }
 function swLap() {
   const t=swElapsed+Date.now()-swStart; swLaps.push(t);
-  const div=document.getElementById('swLaps');
   const row=document.createElement('div');
-  row.style.cssText='display:flex;justify-content:space-between;font-size:0.85rem;padding:4px 8px;background:#f8fafc;border-radius:6px;';
-  row.innerHTML=`<span style="color:#94a3b8;">Lap ${swLaps.length}</span><span style="font-weight:600;font-family:monospace;">${swFormat(t)}</span>`;
-  div.insertBefore(row,div.firstChild);
+  row.style.cssText='display:flex;justify-content:space-between;font-size:0.85rem;padding:4px 8px;background:rgba(255,255,255,0.08);border-radius:6px;color:white;';
+  row.innerHTML=`<span style="color:rgba(255,255,255,0.5);">Lap ${swLaps.length}</span><span style="font-weight:600;font-family:monospace;">${swFormat(t)}</span>`;
+  const divCard=document.getElementById('swLaps');
+  const rowCard=document.createElement('div');
+  rowCard.style.cssText='display:flex;justify-content:space-between;font-size:0.85rem;padding:4px 8px;background:#f8fafc;border-radius:6px;';
+  rowCard.innerHTML=`<span style="color:#94a3b8;">Lap ${swLaps.length}</span><span style="font-weight:600;font-family:monospace;">${swFormat(t)}</span>`;
+  divCard.insertBefore(rowCard,divCard.firstChild);
+  const divFs=document.getElementById('swfsLaps');
+  if(divFs&&document.getElementById('swfsOverlay').classList.contains('active')) divFs.insertBefore(row,divFs.firstChild);
 }
+
+// ═════════════════════ STOPWATCH FULLSCREEN ══════════════════
+function openSwFs() {
+  const cur=document.getElementById('swDisplay').textContent;
+  document.getElementById('swfsDisplay').textContent=cur;
+  // sync button states
+  const startBtn=document.getElementById('swfsStartBtn');
+  startBtn.textContent=swRunning?'Pause':document.getElementById('swStartBtn').textContent;
+  document.getElementById('swfsLapBtn').disabled=!swRunning;
+  // sync laps
+  const divFs=document.getElementById('swfsLaps');
+  divFs.innerHTML='';
+  [...swLaps].reverse().forEach((t,i)=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;justify-content:space-between;font-size:0.85rem;padding:4px 8px;background:rgba(255,255,255,0.08);border-radius:6px;color:white;';
+    row.innerHTML=`<span style="color:rgba(255,255,255,0.5);">Lap ${swLaps.length-i}</span><span style="font-weight:600;font-family:monospace;">${swFormat(t)}</span>`;
+    divFs.appendChild(row);
+  });
+  document.getElementById('swfsOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeSwFs() {
+  document.getElementById('swfsOverlay').classList.remove('active');
+  document.body.style.overflow='';
+}
+function swfsToggle() { swToggle(); }
+function swfsReset()  { swReset(); }
+function swfsLap()    { swLap(); }
 
 // ═════════════════════ COUNTDOWN ═════════════════════════════
 let cdRunning=false, cdRemaining=300, cdInterval=null;
