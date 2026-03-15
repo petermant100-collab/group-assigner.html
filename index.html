@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student Group Assigner</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -314,6 +315,99 @@
       flex-shrink: 0;
     }
 
+    /* ── Google Classroom Card ─────────────────────────────────────── */
+    .gc-intro {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .btn-google {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      color: #374151;
+      border: 1.5px solid #d1d5db;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .btn-google:hover { background: #f9fafb; border-color: #9ca3af; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    .btn-google svg { flex-shrink: 0; }
+
+    .gc-signed-in-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .gc-signed-in-row select {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 12px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      background: white;
+      color: #1a202c;
+      cursor: pointer;
+    }
+    .gc-signed-in-row select:focus { border-color: #4f46e5; }
+
+    .gc-user-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      font-size: 0.88rem;
+      color: #475569;
+    }
+    .gc-user-row img {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .gc-user-row strong { color: #1a202c; }
+
+    .gc-status {
+      font-size: 0.85rem;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      display: none;
+    }
+    .gc-status.loading { background: #eff6ff; color: #1d4ed8; display: block; }
+    .gc-status.success { background: #f0fdf4; color: #166534; display: block; }
+    .gc-status.error   { background: #fee2e2; color: #991b1b; display: block; }
+
+    .gc-multi-hint {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
+    .btn-signout {
+      background: none;
+      border: 1.5px solid #e2e8f0;
+      color: #64748b;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-signout:hover { border-color: #ef4444; color: #ef4444; background: #fff1f2; }
+
     @media (max-width: 600px) {
       header h1 { font-size: 1.5rem; }
       .card { padding: 20px; }
@@ -329,6 +423,46 @@
 </header>
 
 <div class="container">
+
+  <!-- GOOGLE CLASSROOM IMPORT -->
+  <div class="card">
+    <div class="card-title">
+      <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="48" rx="8" fill="#34A853"/>
+        <path d="M24 14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 16c-4.42 0-13 2.21-13 6.67V38h26v-1.33C37 32.21 28.42 30 24 30z" fill="white"/>
+      </svg>
+      Import from Google Classroom
+      <span class="badge" style="background:#dcfce7;color:#16a34a;">Optional</span>
+    </div>
+
+    <!-- Not signed in -->
+    <div id="gcNotSignedIn">
+      <p class="gc-intro">Sign in with Google to load your class roster automatically. You can import from multiple classes and switch between them.</p>
+      <button class="btn-google" onclick="gcSignIn()">
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Sign in with Google
+      </button>
+    </div>
+
+    <!-- Signed in -->
+    <div id="gcSignedIn" style="display:none;">
+      <div class="gc-user-row">
+        <img id="gcAvatar" src="" alt="" onerror="this.style.display='none'" />
+        <span>Signed in as <strong id="gcUserName"></strong></span>
+        <button class="btn-signout" onclick="gcSignOut()">Sign Out</button>
+      </div>
+
+      <div class="gc-signed-in-row">
+        <select id="courseSelect" onchange="gcCourseChanged()">
+          <option value="">— Select a class —</option>
+        </select>
+        <button class="btn btn-primary" id="gcLoadBtn" onclick="gcLoadRoster()" disabled>Load Roster</button>
+      </div>
+
+      <p class="gc-multi-hint">💡 You can load multiple classes — each load <strong>adds</strong> to the student list. Use <em>Clear All</em> to start fresh.</p>
+      <div class="gc-status" id="gcStatus"></div>
+    </div>
+  </div>
 
   <!-- STEP 1: Students -->
   <div class="card">
@@ -776,6 +910,164 @@
   });
   document.getElementById('groupCount').addEventListener('input', updateHint);
   render();
+
+  // ── Google Classroom Integration ───────────────────────────────────────────
+  const GC_CLIENT_ID = '398480339629-vlcfurf5lc6t99l9dhurpmbo96vc831v.apps.googleusercontent.com';
+  const GC_SCOPES    = 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.rosters.readonly profile email';
+
+  let gcTokenClient  = null;
+  let gcAccessToken  = null;
+
+  function gcSignIn() {
+    if (!window.google) {
+      alert('Google Sign-In is still loading — please try again in a moment.');
+      return;
+    }
+    if (!gcTokenClient) {
+      gcTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GC_CLIENT_ID,
+        scope: GC_SCOPES,
+        callback: gcHandleToken,
+      });
+    }
+    gcTokenClient.requestAccessToken({ prompt: 'consent' });
+  }
+
+  async function gcHandleToken(response) {
+    if (response.error) {
+      gcSetStatus('error', 'Sign-in failed: ' + response.error);
+      return;
+    }
+    gcAccessToken = response.access_token;
+
+    // Fetch user profile
+    try {
+      const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: 'Bearer ' + gcAccessToken }
+      });
+      const profile = await profileRes.json();
+      document.getElementById('gcUserName').textContent = profile.name || profile.email || 'your account';
+      document.getElementById('gcAvatar').src = profile.picture || '';
+    } catch (_) {
+      document.getElementById('gcUserName').textContent = 'your account';
+    }
+
+    document.getElementById('gcNotSignedIn').style.display = 'none';
+    document.getElementById('gcSignedIn').style.display    = 'block';
+    gcSetStatus('loading', 'Loading your classes…');
+    gcLoadCourses();
+  }
+
+  async function gcLoadCourses() {
+    const select = document.getElementById('courseSelect');
+    select.innerHTML = '<option value="">Loading…</option>';
+    document.getElementById('gcLoadBtn').disabled = true;
+
+    try {
+      let courses = [];
+      let pageToken = '';
+      do {
+        const url = 'https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE&pageSize=30'
+          + (pageToken ? '&pageToken=' + pageToken : '');
+        const res  = await fetch(url, { headers: { Authorization: 'Bearer ' + gcAccessToken } });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        (data.courses || []).forEach(c => courses.push(c));
+        pageToken = data.nextPageToken || '';
+      } while (pageToken);
+
+      select.innerHTML = '<option value="">— Select a class —</option>';
+
+      if (courses.length === 0) {
+        select.innerHTML = '<option value="">No active classes found</option>';
+        gcSetStatus('error', 'No active classes found in your Google Classroom account.');
+        return;
+      }
+
+      courses.forEach(course => {
+        const opt = document.createElement('option');
+        opt.value       = course.id;
+        opt.textContent = course.name + (course.section ? ' · ' + course.section : '');
+        select.appendChild(opt);
+      });
+
+      gcSetStatus('success', `Found ${courses.length} class${courses.length !== 1 ? 'es' : ''}. Select one and click Load Roster.`);
+    } catch (err) {
+      gcSetStatus('error', 'Could not load classes: ' + err.message);
+      select.innerHTML = '<option value="">— Error loading classes —</option>';
+    }
+  }
+
+  function gcCourseChanged() {
+    const val = document.getElementById('courseSelect').value;
+    document.getElementById('gcLoadBtn').disabled = !val;
+    if (!val) gcSetStatus('', '');
+  }
+
+  async function gcLoadRoster() {
+    const select   = document.getElementById('courseSelect');
+    const courseId = select.value;
+    const courseName = select.options[select.selectedIndex].textContent;
+    if (!courseId) return;
+
+    gcSetStatus('loading', `Loading students from "${courseName}"…`);
+    document.getElementById('gcLoadBtn').disabled = true;
+
+    try {
+      let roster = [];
+      let pageToken = '';
+      do {
+        const url = `https://classroom.googleapis.com/v1/courses/${courseId}/students?pageSize=200`
+          + (pageToken ? '&pageToken=' + pageToken : '');
+        const res  = await fetch(url, { headers: { Authorization: 'Bearer ' + gcAccessToken } });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        (data.students || []).forEach(s => roster.push(s));
+        pageToken = data.nextPageToken || '';
+      } while (pageToken);
+
+      if (roster.length === 0) {
+        gcSetStatus('error', 'No students found in this class.');
+        document.getElementById('gcLoadBtn').disabled = false;
+        return;
+      }
+
+      let added = 0;
+      let skipped = 0;
+      roster.forEach(s => {
+        const name = s.profile && s.profile.name ? s.profile.name.fullName : null;
+        if (name && addStudent(name)) { added++; } else { skipped++; }
+      });
+
+      render();
+      let msg = `Added ${added} student${added !== 1 ? 's' : ''} from "${courseName}".`;
+      if (skipped > 0) msg += ` (${skipped} already in list or skipped)`;
+      gcSetStatus('success', msg);
+    } catch (err) {
+      gcSetStatus('error', 'Could not load students: ' + err.message);
+    }
+
+    document.getElementById('gcLoadBtn').disabled = false;
+  }
+
+  function gcSignOut() {
+    if (gcAccessToken) {
+      google.accounts.oauth2.revoke(gcAccessToken, () => {});
+      gcAccessToken = null;
+    }
+    gcTokenClient = null;
+    document.getElementById('gcSignedIn').style.display    = 'none';
+    document.getElementById('gcNotSignedIn').style.display = 'block';
+    document.getElementById('gcStatus').className          = 'gc-status';
+    document.getElementById('gcStatus').textContent        = '';
+    document.getElementById('courseSelect').innerHTML      = '<option value="">— Select a class —</option>';
+  }
+
+  function gcSetStatus(type, msg) {
+    const el = document.getElementById('gcStatus');
+    el.textContent  = msg;
+    el.className    = 'gc-status' + (type ? ' ' + type : '');
+  }
 </script>
 </body>
 </html>
