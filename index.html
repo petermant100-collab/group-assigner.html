@@ -16,15 +16,62 @@
     .header-brand h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; }
     .header-brand p  { opacity: 0.8; font-size: 0.88rem; margin-top: 3px; }
 
-    /* Teacher toggle */
-    .teacher-toggle { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+    /* Toggle switch (card / light bg version) */
     .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: rgba(255,255,255,0.25); border-radius: 24px; transition: .25s; }
-    .toggle-slider::before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .25s; }
-    .toggle-switch input:checked + .toggle-slider { background: rgba(255,255,255,0.55); }
+    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #cbd5e1; border-radius: 24px; transition: .25s; }
+    .toggle-slider::before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .25s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    .toggle-switch input:checked + .toggle-slider { background: #4f46e5; }
     .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
-    .teacher-badge { font-size: 0.72rem; background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 999px; }
+    .teacher-card { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .teacher-card-info { display: flex; flex-direction: column; gap: 2px; }
+    .teacher-card-info strong { font-size: 1rem; font-weight: 700; color: #1a202c; }
+    .teacher-card-info span { font-size: 0.85rem; color: #64748b; }
+    .teacher-card-controls { display: flex; align-items: center; gap: 10px; }
+    .teacher-badge-card { font-size: 0.78rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #f1f5f9; color: #64748b; transition: all .2s; }
+    .teacher-badge-card.on { background: #ede9fe; color: #4f46e5; }
+
+    /* Groups fullscreen overlay */
+    .grpfs-overlay { display: none; position: fixed; inset: 0; background: #1515cc; z-index: 9997; flex-direction: column; padding: 0; overflow-y: auto; }
+    .grpfs-overlay.active { display: flex; }
+    .grpfs-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; flex-shrink: 0; }
+    .grpfs-title { color: white; font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
+    .grpfs-actions { display: flex; gap: 10px; align-items: center; }
+    .btn-grpfs-close { background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25); color: white; border-radius: 10px; padding: 8px 18px; font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s; }
+    .btn-grpfs-close:hover { background: rgba(255,255,255,0.25); }
+    .btn-grpfs-shuffle { background: white; border: none; color: #1515cc; border-radius: 10px; padding: 8px 18px; font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
+    .btn-grpfs-shuffle:hover { background: #ede9fe; }
+    .grpfs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; padding: 8px 32px 40px; }
+    .grpfs-card { border-radius: 16px; padding: 20px 22px; border: 3px solid transparent; }
+    .grpfs-card h3 { font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+    .grpfs-card h3 .grpfs-num { background: rgba(0,0,0,0.18); color: inherit; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+    .grpfs-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .grpfs-card ul li { font-size: 1rem; font-weight: 700; }
+
+    /* Rubric fullscreen overlay */
+    .rbfs-overlay { display: none; position: fixed; inset: 0; background: #1a1a2e; z-index: 9996; flex-direction: column; overflow-y: auto; }
+    .rbfs-overlay.active { display: flex; }
+    .rbfs-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding: 18px 28px 14px; flex-shrink: 0; background: rgba(255,255,255,0.05); }
+    .rbfs-title { color: white; font-size: 1.3rem; font-weight: 800; }
+    .rbfs-timer-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .rbfs-display { font-size: 2rem; font-weight: 800; font-family: 'Courier New', monospace; color: white; min-width: 110px; text-align: center; }
+    .rbfs-display.warning { color: #f87171; animation: blink 1s step-end infinite; }
+    .rbfs-display.done { color: #4ade80; }
+    .rbfs-body { padding: 18px 24px 32px; }
+    .rbfs-table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+    .rbfs-table th, .rbfs-table td { border: 2px solid rgba(255,255,255,0.15); padding: 13px 15px; vertical-align: top; color: white; }
+    .rbfs-table thead th { font-weight: 800; text-align: center; font-size: 1.05rem; }
+    .rbfs-table thead th:first-child { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+    .rbfs-table thead th:nth-child(2) { background: rgba(250,204,21,0.2); color: #fde047; }
+    .rbfs-table thead th:nth-child(3) { background: rgba(74,222,128,0.15); color: #4ade80; }
+    .rbfs-table thead th:nth-child(4) { background: rgba(248,113,113,0.15); color: #f87171; }
+    .rbfs-table tbody td:first-child { background: rgba(255,255,255,0.08); font-weight: 800; white-space: nowrap; color: rgba(255,255,255,0.9); }
+    .rbfs-table tbody td { line-height: 1.6; }
+    .rbfs-table ul { list-style: none; padding: 0; margin: 0; }
+    .rbfs-table ul li::before { content: '• '; color: rgba(255,255,255,0.4); }
+    .rbfs-ex { background: rgba(250,204,21,0.1); }
+    .rbfs-gt { background: rgba(74,222,128,0.08); }
+    .rbfs-ny { background: rgba(248,113,113,0.08); }
 
     /* Nav tabs */
     .nav-tabs { display: flex; gap: 2px; overflow-x: auto; }
@@ -104,7 +151,7 @@
     .group-card { border-radius: 14px; padding: 18px; border: 2px solid transparent; }
     .group-card h3 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; opacity: 0.85; }
     .group-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .group-card ul li { font-size: 0.92rem; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+    .group-card ul li { font-size: 1.38rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
     .group-card ul li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
     .results-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
     .error-banner { background: #fee2e2; border: 1.5px solid #fca5a5; color: #991b1b; border-radius: 10px; padding: 12px 16px; font-size: 0.9rem; font-weight: 500; margin-bottom: 12px; display: none; }
@@ -292,14 +339,6 @@
       <h1>Thinking Classrooms Toolkit</h1>
       <p>Groups · Name Picker · Timer · Math Questions · Rubric</p>
     </div>
-    <div class="teacher-toggle">
-      <span>👁️ Teacher Mode</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="teacherMode" checked onchange="toggleTeacherMode()" />
-        <span class="toggle-slider"></span>
-      </label>
-      <span class="teacher-badge" id="teacherBadge">ON</span>
-    </div>
   </div>
   <nav class="nav-tabs">
     <button class="nav-tab active" data-tab="groups"   onclick="switchTab('groups')">📋 Random Groups</button>
@@ -382,8 +421,25 @@
     </div>
   </div>
 
+  <!-- Teacher Mode toggle -->
+  <div class="card">
+    <div class="teacher-card">
+      <div class="teacher-card-info">
+        <strong>🔒 Teacher Mode</strong>
+        <span>Reveal separation &amp; together rules for editing</span>
+      </div>
+      <div class="teacher-card-controls">
+        <label class="toggle-switch">
+          <input type="checkbox" id="teacherMode" onchange="toggleTeacherMode()" />
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="teacher-badge-card" id="teacherBadge">OFF</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Separation Rules (teacher only) -->
-  <div id="sepCard" class="card">
+  <div id="sepCard" class="card" style="display:none;">
     <div class="card-title">
       <span>Separation Rules</span>
       <span class="badge" id="sepCount">0 rules</span>
@@ -400,7 +456,7 @@
   </div>
 
   <!-- Together Rules (teacher only) -->
-  <div id="togCard" class="card">
+  <div id="togCard" class="card" style="display:none;">
     <div class="card-title">
       <span>Together Rules</span>
       <span class="badge" id="togCount">0 rules</span>
@@ -429,7 +485,7 @@
 
   <!-- Results -->
   <div class="card" id="resultsCard" style="display:none;">
-    <div class="card-title">Results</div>
+    <div class="card-title">Results <button class="btn-timer-fs" onclick="openGroupsFs()" style="margin-left:auto;">⛶ Full Screen</button></div>
     <div class="results-grid" id="resultsGrid"></div>
     <div class="results-actions">
       <button class="btn btn-primary" onclick="generate()">Shuffle Again</button>
@@ -443,6 +499,36 @@
 <!-- ═══════════════════════════════════ PICKER TAB ══════════════════════════════════ -->
 <div id="tab-picker" class="tab-page">
 <div class="container">
+
+  <!-- Google Classroom Import (Picker) -->
+  <div class="card">
+    <div class="card-title">
+      <svg width="20" height="20" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="8" fill="#34A853"/><path d="M24 14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 16c-4.42 0-13 2.21-13 6.67V38h26v-1.33C37 32.21 28.42 30 24 30z" fill="white"/></svg>
+      Import from Google Classroom
+      <span class="badge" style="background:#dcfce7;color:#16a34a;">Optional</span>
+    </div>
+    <div id="gc2NotSignedIn">
+      <p class="gc-intro">Sign in with Google to load your class roster automatically.</p>
+      <button class="btn-google" onclick="gcSignIn()">
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Sign in with Google
+      </button>
+    </div>
+    <div id="gc2SignedIn" style="display:none;">
+      <div class="gc-user-row">
+        <img id="gc2Avatar" src="" alt="" onerror="this.style.display='none'" />
+        <span>Signed in as <strong id="gc2UserName"></strong></span>
+        <button class="btn-signout" onclick="gcSignOut()">Sign Out</button>
+      </div>
+      <div class="gc-signed-in-row">
+        <select id="gc2CourseSelect" onchange="gc2CourseChanged()"><option value="">— Select a class —</option></select>
+        <button class="btn btn-primary" id="gc2LoadBtn" onclick="gc2LoadRoster()" disabled>Load Roster</button>
+      </div>
+      <p class="gc-multi-hint">💡 Each load <strong>adds</strong> to the student list. Use <em>Clear All</em> on the Groups tab to start fresh.</p>
+      <div class="gc-status" id="gc2Status"></div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-title">🎲 Random Name Picker</div>
     <p style="font-size:0.9rem;color:#64748b;margin-bottom:20px;">Randomly select a student to answer a question. Students are pulled from your Groups list.</p>
@@ -800,7 +886,7 @@
 <div id="tab-rubric" class="tab-page">
 <div class="container">
   <div class="card">
-    <div class="card-title">📊 BTC Group Work Rubric</div>
+    <div class="card-title">📊 BTC Group Work Rubric <button class="btn-timer-fs" onclick="openRubricFs()" style="margin-left:auto;">⛶ Full Screen</button></div>
 
     <!-- Timer bar -->
     <div class="rubric-timer-bar">
@@ -868,6 +954,82 @@
 </div>
 </div>
 
+<!-- ═══════════ RUBRIC FULLSCREEN OVERLAY ═══════════ -->
+<div id="rbfsOverlay" class="rbfs-overlay">
+  <div class="rbfs-top">
+    <span class="rbfs-title">📊 BTC Group Work Rubric</span>
+    <div class="rbfs-timer-row">
+      <div class="preset-btns" style="margin:0;">
+        <button class="btn-preset" onclick="rtbPreset(1,0)">1 min</button>
+        <button class="btn-preset" onclick="rtbPreset(2,0)">2 min</button>
+        <button class="btn-preset" onclick="rtbPreset(5,0)">5 min</button>
+        <button class="btn-preset" onclick="rtbPreset(10,0)">10 min</button>
+        <button class="btn-preset" onclick="rtbPreset(0,30)">30 sec</button>
+      </div>
+      <div class="rbfs-display" id="rbfsDisplay">05:00</div>
+      <button class="btn-tfs-primary" id="rbfsStartBtn" onclick="rtbToggle()">Start</button>
+      <button class="btn-tfs-secondary" onclick="rtbReset()">Reset</button>
+      <button class="btn-grpfs-close" onclick="closeRubricFs()">✕ Close</button>
+    </div>
+  </div>
+  <div class="rbfs-body">
+    <table class="rbfs-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>⭐ Excellent</th>
+          <th>👍 Getting There</th>
+          <th>🚫 Not Yet</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🤝 Collaboration</td>
+          <td class="rbfs-ex"><ul><li>Everyone participates</li><li>Share the marker</li><li>Respect ideas</li></ul></td>
+          <td class="rbfs-gt"><ul><li>Most participate</li><li>Some sharing</li></ul></td>
+          <td class="rbfs-ny"><ul><li>One person works</li><li>Ignoring or arguing</li></ul></td>
+        </tr>
+        <tr>
+          <td>🗣️ Communication</td>
+          <td class="rbfs-ex"><ul><li>Explain steps clearly</li><li>Writing easy to read</li><li>Use math vocabulary</li></ul></td>
+          <td class="rbfs-gt"><ul><li>Some explanation</li><li>Some unclear writing</li></ul></td>
+          <td class="rbfs-ny"><ul><li>Not explaining</li><li>Guessing</li><li>Hard to read</li></ul></td>
+        </tr>
+        <tr>
+          <td>🎓 Teach Each Other</td>
+          <td class="rbfs-ex"><ul><li>Everyone can explain</li><li>Help each other understand</li></ul></td>
+          <td class="rbfs-gt"><ul><li>Some can explain</li></ul></td>
+          <td class="rbfs-ny"><ul><li>Only one understands</li><li>Rushing</li></ul></td>
+        </tr>
+        <tr>
+          <td>💪 Perseverance</td>
+          <td class="rbfs-ex"><ul><li>Do not give up</li><li>Try different strategies</li><li>Keep thinking</li></ul></td>
+          <td class="rbfs-gt"><ul><li>Try, but stop when stuck</li></ul></td>
+          <td class="rbfs-ny"><ul><li>Give up quickly</li></ul></td>
+        </tr>
+        <tr>
+          <td>🔢 Mathematical Thinking</td>
+          <td class="rbfs-ex"><ul><li>Justify answers</li><li>Look for patterns</li><li>Check if it makes sense</li></ul></td>
+          <td class="rbfs-gt"><ul><li>Some reasoning shown</li><li>Limited explanation</li></ul></td>
+          <td class="rbfs-ny"><ul><li>Just answers</li><li>No explanation</li><li>Guessing</li></ul></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════ GROUPS FULLSCREEN OVERLAY ═══════════ -->
+<div id="grpfsOverlay" class="grpfs-overlay">
+  <div class="grpfs-header">
+    <span class="grpfs-title">🎲 Random Groups</span>
+    <div class="grpfs-actions">
+      <button class="btn-grpfs-shuffle" onclick="grpfsShuffle()">🔀 Shuffle Again</button>
+      <button class="btn-grpfs-close" onclick="closeGroupsFs()">✕ Close</button>
+    </div>
+  </div>
+  <div class="grpfs-grid" id="grpfsGrid"></div>
+</div>
+
 <!-- ═══════════ STOPWATCH FULLSCREEN OVERLAY ═══════════ -->
 <div id="swfsOverlay" class="tfs-overlay">
   <button class="btn-tfs-close" onclick="closeSwFs()">✕ Close</button>
@@ -925,18 +1087,19 @@
 let students    = [];
 let separations = [];
 let togethers   = [];
-let teacherMode = true;
+let teacherMode = false;
 let pickerHistory = [];
+let lastGroups  = null;
 
 const GROUP_COLORS = [
-  { bg:'#f0fdf4',border:'#86efac',dot:'#16a34a',text:'#166534' },
-  { bg:'#eff6ff',border:'#93c5fd',dot:'#2563eb',text:'#1e40af' },
-  { bg:'#fdf4ff',border:'#d8b4fe',dot:'#9333ea',text:'#6b21a8' },
-  { bg:'#fff7ed',border:'#fdba74',dot:'#ea580c',text:'#9a3412' },
-  { bg:'#f0f9ff',border:'#7dd3fc',dot:'#0284c7',text:'#0c4a6e' },
-  { bg:'#fefce8',border:'#fde047',dot:'#ca8a04',text:'#713f12' },
-  { bg:'#fff1f2',border:'#fda4af',dot:'#e11d48',text:'#881337' },
-  { bg:'#f7fee7',border:'#a3e635',dot:'#65a30d',text:'#3f6212' },
+  { bg:'#bbf7d0',border:'#22c55e',dot:'#16a34a',text:'#14532d' },
+  { bg:'#fecaca',border:'#ef4444',dot:'#dc2626',text:'#7f1d1d' },
+  { bg:'#a5f3fc',border:'#06b6d4',dot:'#0891b2',text:'#164e63' },
+  { bg:'#fef08a',border:'#eab308',dot:'#ca8a04',text:'#713f12' },
+  { bg:'#fbcfe8',border:'#ec4899',dot:'#db2777',text:'#831843' },
+  { bg:'#fed7aa',border:'#f97316',dot:'#ea580c',text:'#7c2d12' },
+  { bg:'#e9d5ff',border:'#a855f7',dot:'#9333ea',text:'#4c1d95' },
+  { bg:'#e0f2fe',border:'#0ea5e9',dot:'#0284c7',text:'#0c4a6e' },
 ];
 
 // ═══════════════════════════ TABS ════════════════════════════
@@ -951,7 +1114,9 @@ function switchTab(name) {
 // ═══════════════════════ TEACHER MODE ═══════════════════════
 function toggleTeacherMode() {
   teacherMode = document.getElementById('teacherMode').checked;
-  document.getElementById('teacherBadge').textContent = teacherMode ? 'ON' : 'OFF';
+  const badge = document.getElementById('teacherBadge');
+  badge.textContent = teacherMode ? 'ON' : 'OFF';
+  badge.classList.toggle('on', teacherMode);
   const sepCard  = document.getElementById('sepCard');
   const togCard  = document.getElementById('togCard');
   const banner   = document.getElementById('hiddenRulesBanner');
@@ -1122,6 +1287,7 @@ function render() {
   updateHint();
 }
 function renderResults(groups) {
+  lastGroups = groups;
   const card=document.getElementById('resultsCard'), grid=document.getElementById('resultsGrid');
   grid.innerHTML='';
   groups.forEach((members,i)=>{
@@ -1132,6 +1298,31 @@ function renderResults(groups) {
     grid.appendChild(div);
   });
   card.style.display='block'; card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function buildGrpfsGrid(groups) {
+  const grid=document.getElementById('grpfsGrid');
+  grid.innerHTML='';
+  groups.forEach((members,i)=>{
+    const c=GROUP_COLORS[i%GROUP_COLORS.length], div=document.createElement('div');
+    div.className='grpfs-card'; div.style.background=c.bg; div.style.borderColor=c.border; div.style.color=c.text;
+    const items=members.length===0?'<li style="opacity:0.5;">Empty</li>':members.map(m=>`<li>${m}</li>`).join('');
+    div.innerHTML=`<h3>Group ${i+1}<span class="grpfs-num">${members.length}</span></h3><ul>${items}</ul>`;
+    grid.appendChild(div);
+  });
+}
+function openGroupsFs() {
+  if(!lastGroups) return;
+  buildGrpfsGrid(lastGroups);
+  document.getElementById('grpfsOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeGroupsFs() {
+  document.getElementById('grpfsOverlay').classList.remove('active');
+  document.body.style.overflow='';
+}
+function grpfsShuffle() {
+  generate();
+  if(lastGroups) buildGrpfsGrid(lastGroups);
 }
 function copyResults() {
   const cards=document.querySelectorAll('.group-card'); let text='';
@@ -1389,9 +1580,10 @@ function gcSignIn() {
 async function gcHandleToken(r) {
   if(r.error){gcSetStatus('error','Sign-in failed: '+r.error);return;}
   gcAccessToken=r.access_token;
-  try { const p=await(await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+gcAccessToken}})).json(); document.getElementById('gcUserName').textContent=p.name||p.email||'your account'; document.getElementById('gcAvatar').src=p.picture||''; } catch(_){}
+  let userName='your account', userPic='';
+  try { const p=await(await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+gcAccessToken}})).json(); userName=p.name||p.email||'your account'; userPic=p.picture||''; document.getElementById('gcUserName').textContent=userName; document.getElementById('gcAvatar').src=userPic; } catch(_){}
   document.getElementById('gcNotSignedIn').style.display='none'; document.getElementById('gcSignedIn').style.display='block';
-  gcSetStatus('loading','Loading your classes…'); gcLoadCourses();
+  gcSyncPanels(); gcSetStatus('loading','Loading your classes…'); gcLoadCourses();
 }
 async function gcLoadCourses() {
   const sel=document.getElementById('courseSelect'); sel.innerHTML='<option value="">Loading…</option>'; document.getElementById('gcLoadBtn').disabled=true;
@@ -1402,7 +1594,8 @@ async function gcLoadCourses() {
     if(!courses.length){sel.innerHTML='<option value="">No active classes found</option>';gcSetStatus('error','No active classes found.');return;}
     courses.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name+(c.section?' · '+c.section:'');sel.appendChild(o);});
     gcSetStatus('success',`Found ${courses.length} class${courses.length!==1?'es':''}. Select one and click Load Roster.`);
-  } catch(e){gcSetStatus('error','Could not load classes: '+e.message);sel.innerHTML='<option value="">— Error loading classes —</option>';}
+    gcSyncPanels();
+  } catch(e){gcSetStatus('error','Could not load classes: '+e.message);sel.innerHTML='<option value="">— Error loading classes —</option>';gcSyncPanels();}
 }
 function gcCourseChanged(){const v=document.getElementById('courseSelect').value;document.getElementById('gcLoadBtn').disabled=!v;if(!v)gcSetStatus('','');}
 async function gcLoadRoster() {
@@ -1425,36 +1618,97 @@ function gcSignOut() {
   document.getElementById('gcSignedIn').style.display='none'; document.getElementById('gcNotSignedIn').style.display='block';
   document.getElementById('gcStatus').className='gc-status'; document.getElementById('gcStatus').textContent='';
   document.getElementById('courseSelect').innerHTML='<option value="">— Select a class —</option>';
+  gcSyncPanels();
 }
 function gcSetStatus(type,msg){const el=document.getElementById('gcStatus');el.textContent=msg;el.className='gc-status'+(type?' '+type:'');}
 
+// ═══════════════════ GC PANEL SYNC (picker tab) ══════════════
+function gcSyncPanels() {
+  const signedIn = !!gcAccessToken;
+  // signed-in / not-signed-in visibility
+  document.getElementById('gc2NotSignedIn').style.display = signedIn ? 'none' : '';
+  document.getElementById('gc2SignedIn').style.display     = signedIn ? 'block' : 'none';
+  if (!signedIn) { document.getElementById('gc2Status').textContent=''; document.getElementById('gc2Status').className='gc-status'; return; }
+  // mirror user name + avatar
+  document.getElementById('gc2UserName').textContent = document.getElementById('gcUserName').textContent;
+  document.getElementById('gc2Avatar').src = document.getElementById('gcAvatar').src;
+  // mirror course select options
+  const src=document.getElementById('courseSelect'), dst=document.getElementById('gc2CourseSelect');
+  const prevVal=dst.value;
+  dst.innerHTML=src.innerHTML;
+  if([...dst.options].some(o=>o.value===prevVal)) dst.value=prevVal;
+  document.getElementById('gc2LoadBtn').disabled = !dst.value;
+}
+function gc2CourseChanged() {
+  const v=document.getElementById('gc2CourseSelect').value;
+  document.getElementById('gc2LoadBtn').disabled=!v;
+  if(!v){document.getElementById('gc2Status').textContent='';document.getElementById('gc2Status').className='gc-status';}
+}
+async function gc2LoadRoster() {
+  // sync the selection back to the main panel then call the shared loader
+  const gc2Sel=document.getElementById('gc2CourseSelect');
+  const mainSel=document.getElementById('courseSelect');
+  mainSel.value=gc2Sel.value;
+  document.getElementById('gc2LoadBtn').disabled=true;
+  document.getElementById('gc2Status').textContent='Loading…'; document.getElementById('gc2Status').className='gc-status loading';
+  await gcLoadRoster();
+  // mirror status back
+  const mainStatus=document.getElementById('gcStatus');
+  document.getElementById('gc2Status').textContent=mainStatus.textContent;
+  document.getElementById('gc2Status').className=mainStatus.className;
+  document.getElementById('gc2LoadBtn').disabled=false;
+}
+
 // ═══════════════════ RUBRIC TIMER ════════════════════════════
 let rtbRunning=false, rtbRemaining=300, rtbInterval=null;
+function rtbSyncDisplays(secs) {
+  const cls='rtb-display'+(secs<=10&&secs>0?' warning':secs===0?' done':'');
+  const d=document.getElementById('rtbDisplay'); d.textContent=cdFormat(secs); d.className=cls;
+  const fd=document.getElementById('rbfsDisplay');
+  if(fd&&document.getElementById('rbfsOverlay').classList.contains('active')){
+    fd.textContent=cdFormat(secs); fd.className=cls.replace('rtb-display','rbfs-display');
+  }
+}
+function rtbSyncBtns(text) {
+  document.getElementById('rtbStartBtn').textContent=text;
+  const fb=document.getElementById('rbfsStartBtn'); if(fb) fb.textContent=text;
+}
 function rtbPreset(m,s){
-  if(rtbRunning){clearInterval(rtbInterval);rtbRunning=false;document.getElementById('rtbStartBtn').textContent='Start';}
+  if(rtbRunning){clearInterval(rtbInterval);rtbRunning=false;rtbSyncBtns('Start');}
   rtbRemaining=m*60+s;
-  const d=document.getElementById('rtbDisplay'); d.textContent=cdFormat(rtbRemaining); d.className='rtb-display';
+  rtbSyncDisplays(rtbRemaining);
 }
 function rtbToggle(){
   if(rtbRunning){
     clearInterval(rtbInterval); rtbRunning=false;
-    document.getElementById('rtbStartBtn').textContent='Resume';
+    rtbSyncBtns('Resume');
   } else {
     if(rtbRemaining<=0){rtbReset();return;}
-    rtbRunning=true; document.getElementById('rtbStartBtn').textContent='Pause';
+    rtbRunning=true; rtbSyncBtns('Pause');
     rtbInterval=setInterval(()=>{
       rtbRemaining--;
-      const d=document.getElementById('rtbDisplay');
-      d.textContent=cdFormat(rtbRemaining);
-      d.className='rtb-display'+(rtbRemaining<=10&&rtbRemaining>0?' warning':rtbRemaining===0?' done':'');
-      if(rtbRemaining<=0){clearInterval(rtbInterval);rtbRunning=false;document.getElementById('rtbStartBtn').textContent='Start';cdBeep();}
+      rtbSyncDisplays(rtbRemaining);
+      if(rtbRemaining<=0){clearInterval(rtbInterval);rtbRunning=false;rtbSyncBtns('Start');cdBeep();}
     },1000);
   }
 }
 function rtbReset(){
   clearInterval(rtbInterval); rtbRunning=false; rtbRemaining=300;
-  const d=document.getElementById('rtbDisplay'); d.textContent=cdFormat(300); d.className='rtb-display';
-  document.getElementById('rtbStartBtn').textContent='Start';
+  rtbSyncDisplays(300); rtbSyncBtns('Start');
+}
+
+// ═══════════════════ RUBRIC FULLSCREEN ═══════════════════════
+function openRubricFs() {
+  document.getElementById('rbfsDisplay').textContent=cdFormat(rtbRemaining);
+  const cls='rbfs-display'+(rtbRemaining<=10&&rtbRemaining>0?' warning':rtbRemaining===0?' done':'');
+  document.getElementById('rbfsDisplay').className=cls;
+  document.getElementById('rbfsStartBtn').textContent=rtbRunning?'Pause':document.getElementById('rtbStartBtn').textContent;
+  document.getElementById('rbfsOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeRubricFs() {
+  document.getElementById('rbfsOverlay').classList.remove('active');
+  document.body.style.overflow='';
 }
 
 // ═══════════════════ TIMER FULLSCREEN ════════════════════════
