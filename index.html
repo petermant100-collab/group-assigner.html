@@ -1720,11 +1720,12 @@ function drawWheel(names,rotation,canvasId){
     ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,s,e); ctx.closePath();
     ctx.fillStyle=WHEEL_COLORS_ARR[i%WHEEL_COLORS_ARR.length]; ctx.fill();
     ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
-    const arcH=(2*Math.PI/n)*(r*0.62); const fs=Math.max(9,Math.min(Math.floor(arcH*0.62),Math.floor(r*0.13)));
+    const arcH=(2*Math.PI/n)*(r*0.62); const fs=Math.max(8,Math.min(Math.floor(arcH*0.527),Math.floor(r*0.11)));
     ctx.save(); ctx.translate(cx,cy); ctx.rotate(m);
     ctx.textAlign='right'; ctx.textBaseline='middle';
-    ctx.fillStyle='#000'; ctx.font=`bold ${fs}px Arial,sans-serif`;
-    ctx.fillText(names[i],r-10,0); ctx.restore();
+    ctx.font=`bold ${fs}px Arial,sans-serif`;
+    ctx.strokeStyle='rgba(0,0,0,0.8)'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.strokeText(names[i],r-10,0);
+    ctx.fillStyle='#fff'; ctx.fillText(names[i],r-10,0); ctx.restore();
   }
   ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI); ctx.strokeStyle='#222'; ctx.lineWidth=4; ctx.stroke();
   const cr=Math.max(28,r*0.1);
