@@ -1732,19 +1732,25 @@ function gcSetStatus(type,msg){const el=document.getElementById('gcStatus');el.t
 // ═══════════════════ GC PANEL SYNC (picker tab) ══════════════
 function gcSyncPanels() {
   const signedIn = !!gcAccessToken;
-  // signed-in / not-signed-in visibility
-  document.getElementById('gc2NotSignedIn').style.display = signedIn ? 'none' : '';
-  document.getElementById('gc2SignedIn').style.display     = signedIn ? 'block' : 'none';
-  if (!signedIn) { document.getElementById('gc2Status').textContent=''; document.getElementById('gc2Status').className='gc-status'; return; }
-  // mirror user name + avatar
-  document.getElementById('gc2UserName').textContent = document.getElementById('gcUserName').textContent;
-  document.getElementById('gc2Avatar').src = document.getElementById('gcAvatar').src;
-  // mirror course select options
-  const src=document.getElementById('courseSelect'), dst=document.getElementById('gc2CourseSelect');
-  const prevVal=dst.value;
-  dst.innerHTML=src.innerHTML;
-  if([...dst.options].some(o=>o.value===prevVal)) dst.value=prevVal;
-  document.getElementById('gc2LoadBtn').disabled = !dst.value;
+  const gc2NS  = document.getElementById('gc2NotSignedIn');
+  const gc2S   = document.getElementById('gc2SignedIn');
+  const gc2Sta = document.getElementById('gc2Status');
+  const gc2UN  = document.getElementById('gc2UserName');
+  const gc2Av  = document.getElementById('gc2Avatar');
+  const gc2CS  = document.getElementById('gc2CourseSelect');
+  const gc2LB  = document.getElementById('gc2LoadBtn');
+  if (gc2NS) gc2NS.style.display = signedIn ? 'none' : '';
+  if (gc2S)  gc2S.style.display  = signedIn ? 'block' : 'none';
+  if (!signedIn) { if(gc2Sta){gc2Sta.textContent='';gc2Sta.className='gc-status';} return; }
+  if (gc2UN) gc2UN.textContent = document.getElementById('gcUserName').textContent;
+  if (gc2Av) gc2Av.src = document.getElementById('gcAvatar').src;
+  if (gc2CS) {
+    const src=document.getElementById('courseSelect');
+    const prevVal=gc2CS.value;
+    gc2CS.innerHTML=src.innerHTML;
+    if([...gc2CS.options].some(o=>o.value===prevVal)) gc2CS.value=prevVal;
+    if(gc2LB) gc2LB.disabled = !gc2CS.value;
+  }
 }
 function gc2CourseChanged() {
   const v=document.getElementById('gc2CourseSelect').value;
