@@ -1497,6 +1497,7 @@ function closeNamwallFs(){ /* nwfs overlay removed */ }
 
 function renderHistory() {
   const list=document.getElementById('historyList');
+  if(!list) return;
   if(pickerHistory.length===0){ list.innerHTML='<span style="color:#94a3b8;font-size:0.85rem;">No one picked yet.</span>'; return; }
   list.innerHTML=pickerHistory.map((n,i)=>`<span class="history-chip">${i===0?'<strong>'+n+'</strong>':n}</span>`).join('');
 }
