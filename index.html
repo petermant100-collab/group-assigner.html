@@ -1944,10 +1944,7 @@ OUTPUT FORMAT — return exactly this JSON with no other text:
 
 function aigenBold(t){ return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>'); }
 
-const AIGEN_KEY='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';
-
 async function aigenGenerate(){
-  const key=AIGEN_KEY;
   const topic=document.getElementById('aigenTopic').value.trim();
   if(!topic){ document.getElementById('aigenStatus').textContent='⚠️ Enter a topic first.'; return; }
   const grade=document.getElementById('aigenGrade').value;
@@ -1956,22 +1953,12 @@ async function aigenGenerate(){
   document.getElementById('aigenStatus').textContent='✨ Generating your BTC question…';
   document.getElementById('aigenResult').style.display='none';
   try {
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('/api/generate',{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':key,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:1024,
-        system:AIGEN_SYSTEM.replace('[GRADE]',grade).replace('[TOPIC]',topic),
-        messages:[{role:'user',content:`Generate a BTC thinking task for ${grade} on ${topic}.`}]
-      })
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({grade,topic,system:AIGEN_SYSTEM.replace('[GRADE]',grade).replace('[TOPIC]',topic)})
     });
-    if(!res.ok){ const e=await res.json().catch(()=>({})); throw new Error(e.error?.message||`API error ${res.status}`); }
+    if(!res.ok){ const e=await res.json().catch(()=>({})); throw new Error(e.error||`API error ${res.status}`); }
     const data=await res.json();
     const j=JSON.parse(data.content[0].text.trim());
     document.getElementById('aigenQuestion').innerHTML=aigenBold(j.question||'');
