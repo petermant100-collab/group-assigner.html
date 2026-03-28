@@ -1894,54 +1894,86 @@ function syncCdDisplays(){
 const AIGEN_SYSTEM=`You are an expert at creating Building Thinking Classrooms (BTC) math questions following Peter Liljedahl's framework. Generate ONE thinking task for [GRADE] students on the topic of [TOPIC].
 
 THE GOLDEN RULE — one rich question, not a worksheet:
-The question should be a single open problem that a group can dig into, argue about, and approach in multiple ways. Do NOT write a list of sub-questions. Do NOT write "Part 1... Part 2... Part 3...". The depth should come from the problem itself, not from piling on extra questions.
+A single open problem that a group can dig into, argue about, and approach multiple ways. Do NOT write sub-questions or parts. The depth comes from the problem itself — extensions are delivered verbally by the teacher, not written into the question.
 
-STRICT QUALITY CRITERIA:
+WHAT MAKES A GREAT BTC QUESTION — all of these must be present:
 
-1. LOW FLOOR, HIGH CEILING
-   - Any student can start immediately without needing prior mastery
-   - The problem naturally reveals more complexity as groups work deeper
-   - Multiple valid approaches exist
+1. DELIBERATE AMBIGUITY
+   - The question should have something students must interpret or decide before they can begin
+   - This triggers immediate group debate: "Wait — does that mean...?" or "Are we assuming...?"
+   - Avoid questions with one clear path. The best questions make groups argue about approach first.
 
-2. COLLABORATIVE BY DESIGN
-   - Cannot be solved by one person in 2 minutes
-   - Generates genuine discussion and disagreement
-   - Groups naturally build on each other's ideas
+2. EVOLVING COMPLEXITY
+   - The problem should feel approachable at first, then reveal more depth as groups work into it
+   - Do NOT front-load the difficulty — students discover the hard part by doing the easy part
+   - A group that goes deeper should find more to think about, not a dead end
 
-3. VNPS-READY
-   - Brief enough to read off a screen in one glance
-   - Launches immediately — no long reading or setup
-   - Plain text only, no bold or special formatting on numbers
+3. COUNTER-INTUITIVE OR SURPRISING POTENTIAL
+   - Where possible, the answer or result should surprise students
+   - The best tasks produce a moment of "wait, really?" that drives groups to check their work
+   - Avoid questions where the answer is predictable before you start
 
-4. VOICE
-   - Direct and concrete. No preamble or fluff.
-   - Present tense, active voice
-   - Feels like something real, not a textbook exercise
-   - Plain numbers — do not use **bold** markdown on any numbers or words
+4. PUZZLE FEEL, NOT TEXTBOOK FEEL
+   - It should not look or feel like a math class exercise
+   - No "calculate", "find the value of", "solve for x" phrasing
+   - Frame it as a real situation someone might actually be in, or a genuine puzzle worth figuring out
+   - Do NOT telegraph the method — students should have to figure out what maths to use
+
+5. LOW FLOOR, HIGH CEILING
+   - Any student can start immediately without prior mastery
+   - Multiple valid approaches exist — drawing, guessing and checking, algebra, tables all work
+   - The problem does not exhaust itself quickly
+
+6. COLLABORATIVE BY DESIGN
+   - Cannot be solved alone in 2 minutes
+   - Generates genuine disagreement and discussion within the group
+   - One person cannot just quietly do it while others watch
+
+7. VNPS-READY
+   - Short enough to read off a projected screen in one glance
+   - Launches immediately with no lengthy setup
+   - Plain text only — no bold, no bullet points, no markdown formatting of any kind
+
+8. VOICE
+   - Direct and concrete. Active voice. Present tense.
+   - No preamble: "In this task you will..." is forbidden
+   - Feels human, not generated. Sounds like a teacher talking, not a textbook.
 
 GRADE CALIBRATION:
-- Grades 1–2: concrete objects, numbers under 20, one clear situation
-- Grades 3–5: multi-step but still concrete, numbers under 1000
-- Grades 6–8: abstract reasoning begins, proportional thinking, integers, patterns
-- Algebra 1 / Geometry / Algebra 2: algebraic structure, proof, generalisation
+- Grades 1–2: concrete objects, small numbers, one genuine puzzle with multiple solutions
+- Grades 3–5: multi-step, still concrete, numbers under 1000, surprising results
+- Grades 6–8: proportional reasoning, integers, patterns, generalisation begins
+- Algebra 1: linear relationships, systems, the structure of equations
+- Geometry: spatial reasoning, proof, counter-intuitive measurement results
+- Algebra 2: non-linear relationships, exponential/quadratic behaviour, pattern generalisation
 
-EXAMPLES OF THE STYLE AND DEPTH TO MATCH:
+EXAMPLES OF THE QUALITY, AMBIGUITY, AND STYLE TO MATCH:
 
-Example 1 — Grade 1 (Addition): There are 8 children on the playground. Some are playing tag and the rest are on the swings. How many could be doing each?
+Example 1 — Grade 1: There are 8 children on the playground. Some are playing tag and the rest are on the swings. How many could be doing each?
+[Why it works: multiple valid answers, immediate to start, generates comparison between groups]
 
-Example 2 — Grade 7 (Ratios): A recipe makes purple paint using 3 parts red and 5 parts blue. You want to make 400 mL. How much of each colour do you need?
+Example 2 — Grade 6 (Factors): I am thinking of a number. It has exactly 3 factors. What could my number be?
+[Why it works: counter-intuitive — most students expect many answers, discover only perfect squares of primes work]
 
-Example 3 — Grade 7 (Linear Relations): Toothpicks are arranged in a row of squares: 1 square uses 4 toothpicks, 2 squares uses 7, 3 squares uses 10. How many toothpicks for 100 squares?
+Example 3 — Grade 7 (Ratios): A recipe makes purple paint using 3 parts red and 5 parts blue. You want to make 400 mL. How much of each colour do you need?
+[Why it works: fixed constraints, one real question, multiple approaches, deliberate ambiguity about what "parts" means]
 
-Example 4 — Algebra 1 (Systems): Two friends each have a different savings plan. Alex starts with $40 and saves $15 a week. Jordan starts with $100 and spends $5 a week. When do they have the same amount?
+Example 4 — Grade 7 (Linear Relations): Toothpicks are arranged in a row of squares: 1 square uses 4 toothpicks, 2 squares uses 7, 3 squares uses 10. How many toothpicks for 100 squares?
+[Why it works: pattern is visible but generalising it requires genuine thinking, surprising that you don't need to count]
+
+Example 5 — Algebra 1 (Systems): Alex starts with $40 and saves $15 a week. Jordan starts with $100 and spends $5 a week. When do they have the same amount?
+[Why it works: two competing stories, counter-intuitive that they ever meet, multiple approaches — table, graph, algebra]
+
+Example 6 — Geometry: A ladder 5 metres long leans against a wall with its base 1 metre from the wall. If you push the base out 1 more metre, how far does the top slide down?
+[Why it works: most students guess the top also moves 1 metre — it doesn't. The surprise drives investigation.]
 
 OUTPUT FORMAT — return exactly this JSON with no other text:
 {
-  "question": "The full question in plain text, no bold, no markdown",
-  "solution": "Step-by-step teacher solution with key answers",
-  "hints": ["Hint 1 for stuck groups", "Hint 2 that goes further"],
-  "extension": "A harder follow-up for groups that finish early",
-  "btc_notes": "1-2 sentences on what makes this a good BTC task and what to watch for"
+  "question": "The full question in plain text. No bold, no markdown, no bullet points.",
+  "solution": "Step-by-step teacher solution with key answers and common approaches",
+  "hints": ["Hint 1 — unsticks a group without giving it away", "Hint 2 — goes further for groups still stuck after Hint 1"],
+  "extension": "A follow-up that deepens or generalises — delivered verbally by teacher to groups who finish",
+  "btc_notes": "What makes this task work as a BTC question and what to watch for in the room"
 }`;
 
 function aigenBold(t){ return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>'); }
