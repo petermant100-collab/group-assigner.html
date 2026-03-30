@@ -273,6 +273,22 @@
     .btn-tfs-secondary:hover { background: rgba(255,255,255,0.2); }
     .btn-tfs-close { position: absolute; top: 18px; right: 22px; background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2); color: white; border-radius: 10px; padding: 8px 16px; font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s; }
     .btn-tfs-close:hover { background: rgba(255,255,255,0.2); }
+
+    /* ── Question Generator Timer ── */
+    .aigen-timer-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:14px 0 4px; border-top:1px solid #ede9e0; margin-top:14px; }
+    .aigen-timer-display { font-size:1.6rem; font-weight:800; font-family:'Courier New',monospace; color:#1e2d5a; min-width:80px; text-align:center; }
+    .aigen-timer-display.warning { color:#ef4444; animation:blink 1s step-end infinite; }
+    .aigen-timer-display.done { color:#16a34a; }
+    /* ── Question Generator Fullscreen ── */
+    .aqfs-overlay { display:none; position:fixed; inset:0; background:#0f0f1a; z-index:9999; flex-direction:column; }
+    .aqfs-overlay.active { display:flex; }
+    .aqfs-top { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:18px 24px; background:rgba(255,255,255,0.05); flex-shrink:0; }
+    .aqfs-timer-display { font-size:2.2rem; font-weight:900; font-family:'Courier New',monospace; color:white; min-width:110px; text-align:center; }
+    .aqfs-timer-display.warning { color:#ef4444; animation:blink 1s step-end infinite; }
+    .aqfs-timer-display.done { color:#4ade80; }
+    .aqfs-body { flex:1; display:flex; align-items:center; justify-content:center; padding:40px; overflow-y:auto; }
+    .aqfs-question-text { font-size:2.4rem; font-weight:600; color:white; line-height:1.5; text-align:center; max-width:900px; }
+    @media (max-width:700px) { .aqfs-question-text { font-size:1.5rem; } .aqfs-timer-display { font-size:1.6rem; } }
     .btn-timer-fs { background: #f1f5f9; color: #475569; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; margin-left: auto; }
     .btn-timer-fs:hover { background: #f0ebe0; border-color: #c4a96e; color: #1e2d5a; }
 
@@ -374,9 +390,9 @@
   <nav class="nav-tabs">
     <button class="nav-tab active" data-tab="groups"   onclick="switchTab('groups')">Random Groups</button>
     <button class="nav-tab"        data-tab="picker"   onclick="switchTab('picker')">Name Picker</button>
-    <button class="nav-tab"        data-tab="timer"    onclick="switchTab('timer')">Timer</button>
-    <button class="nav-tab"        data-tab="rubric"   onclick="switchTab('rubric')">Rubric</button>
     <button class="nav-tab"        data-tab="aigen"    onclick="switchTab('aigen')">Question Generator</button>
+    <button class="nav-tab"        data-tab="rubric"   onclick="switchTab('rubric')">Rubric</button>
+    <button class="nav-tab"        data-tab="timer"    onclick="switchTab('timer')">Timer</button>
   </nav>
 </header>
 
@@ -642,8 +658,9 @@
 
   <div class="card aigen-card">
     <div class="card-title">Thinking Question Generator
+      <button class="btn-timer-fs" id="aqfsBtnOpen" onclick="openAigenFs()" style="margin-left:auto;display:none;">⛶ Full Screen</button>
     </div>
-    <p style="font-size:0.88rem;color:#5a4a30;margin-bottom:16px;line-height:1.5;">Generates a fully structured BTC thinking task — low floor / high ceiling, VNPS-ready, with hints, solution, and teacher notes.</p>
+    <p style="font-size:0.88rem;color:#5a4a30;margin-bottom:16px;line-height:1.5;">Generates a fully structured Building Thinking Classrooms thinking task — low floor / high ceiling, VNPS-ready, with hints, solution, and teacher notes.</p>
 
     <div class="aigen-controls">
       <div class="aigen-field">
@@ -676,14 +693,28 @@
         <button class="btn-atog" id="aBtnHints" onclick="aigenToggle('Hints')">💡 Hints</button>
         <button class="btn-atog" id="aBtnSol"   onclick="aigenToggle('Sol')">🔒 Solution</button>
         <button class="btn-atog" id="aBtnExt"   onclick="aigenToggle('Ext')">➕ Extension</button>
-        <button class="btn-atog" id="aBtnBtc"   onclick="aigenToggle('Btc')">🏫 BTC Notes</button>
+        <button class="btn-atog" id="aBtnBtc"   onclick="aigenToggle('Btc')">🏫 Teacher Notes</button>
         <button class="btn-aigen-regen" onclick="aigenGenerate()">↺ New question</button>
         <button class="btn-aigen-regen" id="aBtnCopy" onclick="aigenCopyQuestion()" style="margin-left:auto;">📋 Copy question</button>
       </div>
       <div class="aigen-body hints" id="aigenBodyHints"><strong class="aigen-label">Hints for stuck groups</strong><ul class="aigen-hints-list" id="aigenHintsList"></ul></div>
       <div class="aigen-body sol"   id="aigenBodySol"><strong class="aigen-label">Teacher Solution</strong><div id="aigenSolText"></div></div>
       <div class="aigen-body ext"   id="aigenBodyExt"><strong class="aigen-label">Extension</strong><div id="aigenExtText"></div></div>
-      <div class="aigen-body btc"   id="aigenBodyBtc"><strong class="aigen-label">🏫 BTC Notes</strong><div id="aigenBtcText"></div></div>
+      <div class="aigen-body btc"   id="aigenBodyBtc"><strong class="aigen-label">🏫 Teacher Notes</strong><div id="aigenBtcText"></div></div>
+
+      <!-- Timer bar — shown after question generated -->
+      <div class="aigen-timer-bar" id="aigenTimerBar" style="display:none;">
+        <div class="preset-btns" style="margin:0;">
+          <button class="btn-preset" onclick="aqtPreset(1,0)">1 min</button>
+          <button class="btn-preset" onclick="aqtPreset(2,0)">2 min</button>
+          <button class="btn-preset" onclick="aqtPreset(3,0)">3 min</button>
+          <button class="btn-preset" onclick="aqtPreset(5,0)">5 min</button>
+          <button class="btn-preset" onclick="aqtPreset(10,0)">10 min</button>
+        </div>
+        <div class="aigen-timer-display" id="aqtDisplay">05:00</div>
+        <button class="btn btn-primary" id="aqtStartBtn" onclick="aqtToggle()" style="padding:7px 18px;font-size:0.88rem;">Start</button>
+        <button class="btn btn-secondary" onclick="aqtReset()" style="padding:7px 14px;font-size:0.88rem;">Reset</button>
+      </div>
     </div>
   </div>
 
@@ -703,7 +734,7 @@
 <div id="tab-rubric" class="tab-page">
 <div class="container">
   <div class="card">
-    <div class="card-title">📊 BTC Group Work Rubric <button class="btn-timer-fs" onclick="openRubricFs()" style="margin-left:auto;">⛶ Full Screen</button></div>
+    <div class="card-title">📊 Building Thinking Classrooms Rubric <button class="btn-timer-fs" onclick="openRubricFs()" style="margin-left:auto;">⛶ Full Screen</button></div>
 
     <!-- Timer bar -->
     <div class="rubric-timer-bar">
@@ -787,7 +818,7 @@
 
 <div id="rbfsOverlay" class="rbfs-overlay">
   <div class="rbfs-top">
-    <span class="rbfs-title">📊 BTC Group Work Rubric</span>
+    <span class="rbfs-title">📊 Building Thinking Classrooms Rubric</span>
     <div class="rbfs-timer-row">
       <div class="preset-btns" style="margin:0;">
         <button class="btn-preset" onclick="rtbPreset(1,0)">1 min</button>
@@ -1813,6 +1844,50 @@ function rtbReset(){
   rtbSyncDisplays(300); rtbSyncBtns('Start');
 }
 
+// ═══════════════════ QUESTION GENERATOR TIMER ════════════════
+let aqtRemaining=300, aqtRunning=false, aqtInterval=null;
+function aqtSyncDisplays(s){
+  const t=cdFormat(s);
+  const cls='aigen-timer-display'+(s<=10&&s>0?' warning':s===0?' done':'');
+  const el=document.getElementById('aqtDisplay'); if(el){el.textContent=t;el.className=cls;}
+  const fs=document.getElementById('aqfsDisplay'); if(fs){fs.textContent=t;fs.className='aqfs-timer-display'+(s<=10&&s>0?' warning':s===0?' done':'');}
+}
+function aqtSyncBtns(text){
+  const b=document.getElementById('aqtStartBtn'); if(b) b.textContent=text;
+  const fb=document.getElementById('aqfsStartBtn'); if(fb) fb.textContent=text;
+}
+function aqtPreset(m,s){
+  if(aqtRunning){clearInterval(aqtInterval);aqtRunning=false;aqtSyncBtns('Start');}
+  aqtRemaining=m*60+s; aqtSyncDisplays(aqtRemaining);
+}
+function aqtToggle(){
+  if(aqtRunning){
+    clearInterval(aqtInterval);aqtRunning=false;aqtSyncBtns('Resume');
+  } else {
+    if(aqtRemaining<=0){aqtReset();return;}
+    aqtRunning=true;aqtSyncBtns('Pause');
+    aqtInterval=setInterval(()=>{
+      aqtRemaining--;aqtSyncDisplays(aqtRemaining);
+      if(aqtRemaining<=0){clearInterval(aqtInterval);aqtRunning=false;aqtSyncBtns('Start');cdBeep();}
+    },1000);
+  }
+}
+function aqtReset(){
+  clearInterval(aqtInterval);aqtRunning=false;aqtRemaining=300;
+  aqtSyncDisplays(300);aqtSyncBtns('Start');
+}
+function openAigenFs(){
+  document.getElementById('aqfsQuestionText').textContent=document.getElementById('aigenQuestion').textContent||'';
+  aqtSyncDisplays(aqtRemaining);
+  document.getElementById('aqfsStartBtn').textContent=aqtRunning?'Pause':(document.getElementById('aqtStartBtn').textContent||'Start');
+  document.getElementById('aqfsOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeAigenFs(){
+  document.getElementById('aqfsOverlay').classList.remove('active');
+  document.body.style.overflow='';
+}
+
 // ═══════════════════ RUBRIC FULLSCREEN ═══════════════════════
 function openRubricFs() {
   document.getElementById('rbfsDisplay').textContent=cdFormat(rtbRemaining);
@@ -2007,6 +2082,8 @@ async function aigenGenerate(){
       document.getElementById('aigenBody'+s).classList.remove('open');
     });
     document.getElementById('aigenResult').style.display='block';
+    document.getElementById('aigenTimerBar').style.display='flex';
+    document.getElementById('aqfsBtnOpen').style.display='';
     document.getElementById('aigenStatus').textContent=`✅ ${grade} — "${topic}" ready!`;
     aigenPushHistory(grade,topic,j);
   } catch(e){
@@ -2109,6 +2186,26 @@ render();
   passthemarker.com &nbsp;·&nbsp;
   <a href="#" onclick="event.preventDefault();document.getElementById('aboutModal').style.display='flex';" style="color:#1e2d5a;text-decoration:none;font-weight:600;">About Peter Mant</a>
 </footer>
+<!-- ═══════════ QUESTION GENERATOR FULLSCREEN ═══════════ -->
+<div id="aqfsOverlay" class="aqfs-overlay">
+  <div class="aqfs-top">
+    <div class="preset-btns" style="margin:0;">
+      <button class="btn-preset" onclick="aqtPreset(1,0)">1 min</button>
+      <button class="btn-preset" onclick="aqtPreset(2,0)">2 min</button>
+      <button class="btn-preset" onclick="aqtPreset(3,0)">3 min</button>
+      <button class="btn-preset" onclick="aqtPreset(5,0)">5 min</button>
+      <button class="btn-preset" onclick="aqtPreset(10,0)">10 min</button>
+    </div>
+    <div class="aqfs-timer-display" id="aqfsDisplay">05:00</div>
+    <button class="btn-tfs-primary" id="aqfsStartBtn" onclick="aqtToggle()" style="padding:10px 28px;font-size:1rem;">Start</button>
+    <button class="btn-tfs-secondary" onclick="aqtReset()" style="padding:10px 20px;font-size:1rem;">Reset</button>
+    <button class="btn-grpfs-close" onclick="closeAigenFs()" style="margin-left:auto;">✕ Close</button>
+  </div>
+  <div class="aqfs-body">
+    <div class="aqfs-question-text" id="aqfsQuestionText"></div>
+  </div>
+</div>
+
 <div id="aboutModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:10001;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
   <div style="background:white;border-radius:12px;padding:36px 40px;max-width:480px;width:90%;position:relative;max-height:88vh;overflow-y:auto;">
     <button onclick="document.getElementById('aboutModal').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#8a7a60;line-height:1;">×</button>
