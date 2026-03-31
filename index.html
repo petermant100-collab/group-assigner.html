@@ -3,7 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pass The Marker</title>
+  <title>Pass The Marker — Building Thinking Classrooms Toolkit</title>
+  <meta name="description" content="Free teacher toolkit for Building Thinking Classrooms. Randomly assign groups, pick names, generate thinking questions, run timers and rubrics — all in one place." />
+  <meta name="keywords" content="Building Thinking Classrooms, BTC, Peter Liljedahl, random groups, thinking tasks, math teacher tools, VNPS, vertical non-permanent surfaces, group randomizer" />
+  <meta name="author" content="Peter Mant" />
+  <link rel="canonical" href="https://passthemarker.com/" />
+
+  <!-- Open Graph (Facebook, LinkedIn, WhatsApp previews) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://passthemarker.com/" />
+  <meta property="og:title" content="Pass The Marker — Building Thinking Classrooms Toolkit" />
+  <meta property="og:description" content="Free teacher toolkit for Building Thinking Classrooms. Randomly assign groups, pick names, generate thinking questions, run timers and rubrics." />
+  <meta property="og:site_name" content="Pass The Marker" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Pass The Marker — Building Thinking Classrooms Toolkit" />
+  <meta name="twitter:description" content="Free teacher toolkit for Building Thinking Classrooms. Randomly assign groups, pick names, generate thinking questions, run timers and rubrics." />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Pass The Marker",
+    "url": "https://passthemarker.com/",
+    "description": "Free teacher toolkit for Building Thinking Classrooms — random group generator, name picker, AI thinking question generator, countdown timer, and group work rubric.",
+    "applicationCategory": "EducationApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "Peter Mant" }
+  }
+  </script>
+
   <link rel="icon" href="data:image/svg+xml,<svg viewBox='0 0 36 36' fill='none' xmlns='http://www.w3.org/2000/svg'><rect width='36' height='36' rx='8' fill='%23f59e0b'/><g transform='rotate(-35 18 18)'><rect x='14' y='4' width='8' height='8' rx='2.5' fill='%231e2d5a'/><rect x='14' y='11' width='8' height='15' fill='white'/><path d='M14 26 L22 26 L18 32 Z' fill='white'/></g></svg>">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -658,8 +690,45 @@
 
   <div class="card aigen-card">
     <div class="card-title">Thinking Question Generator
-      <button class="btn-timer-fs" id="aqfsBtnOpen" onclick="openAigenFs()" style="margin-left:auto;display:none;">⛶ Full Screen</button>
+      <button class="btn-timer-fs" id="aqfsBtnOpen" onclick="openAigenFs()" style="margin-left:auto;">⛶ Full Screen</button>
     </div>
+
+    <!-- Timer bar — top of card, consistent with rubric -->
+    <div class="rubric-timer-bar" style="margin-bottom:16px;">
+      <span class="rtb-label">⏱️ Timer:</span>
+      <div class="preset-btns" style="margin:0;">
+        <button class="btn-preset" onclick="aqtPreset(1,0)">1 min</button>
+        <button class="btn-preset" onclick="aqtPreset(2,0)">2 min</button>
+        <button class="btn-preset" onclick="aqtPreset(5,0)">5 min</button>
+        <button class="btn-preset" onclick="aqtPreset(10,0)">10 min</button>
+        <button class="btn-preset" onclick="aqtPreset(0,30)">30 sec</button>
+      </div>
+      <div class="countdown-setter" style="margin:0;">
+        <div class="time-unit">
+          <div class="time-input-ctrl">
+            <button onclick="aqtAdjust('min',1)">+</button>
+            <input type="number" id="aqtMinInput" value="5" min="0" max="99" oninput="aqtInputChanged()" />
+            <button onclick="aqtAdjust('min',-1)">−</button>
+          </div>
+          <span>min</span>
+        </div>
+        <div class="colon-sep">:</div>
+        <div class="time-unit">
+          <div class="time-input-ctrl">
+            <button onclick="aqtAdjust('sec',5)">+</button>
+            <input type="number" id="aqtSecInput" value="0" min="0" max="59" oninput="aqtInputChanged()" />
+            <button onclick="aqtAdjust('sec',-5)">−</button>
+          </div>
+          <span>sec</span>
+        </div>
+      </div>
+      <div class="rtb-display" id="aqtDisplay">05:00</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" id="aqtStartBtn" onclick="aqtToggle()" style="padding:7px 18px;font-size:0.88rem;">Start</button>
+        <button class="btn btn-secondary" onclick="aqtReset()" style="padding:7px 14px;font-size:0.88rem;">Reset</button>
+      </div>
+    </div>
+
     <p style="font-size:0.88rem;color:#5a4a30;margin-bottom:16px;line-height:1.5;">Generates a fully structured Building Thinking Classrooms thinking task — low floor / high ceiling, VNPS-ready, with hints, solution, and teacher notes.</p>
 
     <div class="aigen-controls">
@@ -702,19 +771,6 @@
       <div class="aigen-body ext"   id="aigenBodyExt"><strong class="aigen-label">Extension</strong><div id="aigenExtText"></div></div>
       <div class="aigen-body btc"   id="aigenBodyBtc"><strong class="aigen-label">🏫 Teacher Notes</strong><div id="aigenBtcText"></div></div>
 
-      <!-- Timer bar — shown after question generated -->
-      <div class="aigen-timer-bar" id="aigenTimerBar" style="display:none;">
-        <div class="preset-btns" style="margin:0;">
-          <button class="btn-preset" onclick="aqtPreset(1,0)">1 min</button>
-          <button class="btn-preset" onclick="aqtPreset(2,0)">2 min</button>
-          <button class="btn-preset" onclick="aqtPreset(3,0)">3 min</button>
-          <button class="btn-preset" onclick="aqtPreset(5,0)">5 min</button>
-          <button class="btn-preset" onclick="aqtPreset(10,0)">10 min</button>
-        </div>
-        <div class="aigen-timer-display" id="aqtDisplay">05:00</div>
-        <button class="btn btn-primary" id="aqtStartBtn" onclick="aqtToggle()" style="padding:7px 18px;font-size:0.88rem;">Start</button>
-        <button class="btn btn-secondary" onclick="aqtReset()" style="padding:7px 14px;font-size:0.88rem;">Reset</button>
-      </div>
     </div>
   </div>
 
@@ -1859,6 +1915,23 @@ function aqtSyncBtns(text){
 function aqtPreset(m,s){
   if(aqtRunning){clearInterval(aqtInterval);aqtRunning=false;aqtSyncBtns('Start');}
   aqtRemaining=m*60+s; aqtSyncDisplays(aqtRemaining);
+  const mi=document.getElementById('aqtMinInput'); if(mi) mi.value=m;
+  const si=document.getElementById('aqtSecInput'); if(si) si.value=String(s).padStart(2,'0');
+}
+function aqtInputChanged(){
+  const m=parseInt(document.getElementById('aqtMinInput').value)||0;
+  const s=parseInt(document.getElementById('aqtSecInput').value)||0;
+  if(aqtRunning){clearInterval(aqtInterval);aqtRunning=false;aqtSyncBtns('Start');}
+  aqtRemaining=m*60+s; aqtSyncDisplays(aqtRemaining);
+}
+function aqtAdjust(unit,delta){
+  const mi=document.getElementById('aqtMinInput');
+  const si=document.getElementById('aqtSecInput');
+  let m=parseInt(mi.value)||0, s=parseInt(si.value)||0;
+  if(unit==='min') m=Math.max(0,Math.min(99,m+delta));
+  else s=Math.max(0,Math.min(59,s+delta));
+  mi.value=m; si.value=String(s).padStart(2,'0');
+  aqtInputChanged();
 }
 function aqtToggle(){
   if(aqtRunning){
@@ -1875,6 +1948,8 @@ function aqtToggle(){
 function aqtReset(){
   clearInterval(aqtInterval);aqtRunning=false;aqtRemaining=300;
   aqtSyncDisplays(300);aqtSyncBtns('Start');
+  const mi=document.getElementById('aqtMinInput'); if(mi) mi.value=5;
+  const si=document.getElementById('aqtSecInput'); if(si) si.value='00';
 }
 function openAigenFs(){
   document.getElementById('aqfsQuestionText').textContent=document.getElementById('aigenQuestion').textContent||'';
@@ -2082,8 +2157,6 @@ async function aigenGenerate(){
       document.getElementById('aigenBody'+s).classList.remove('open');
     });
     document.getElementById('aigenResult').style.display='block';
-    document.getElementById('aigenTimerBar').style.display='flex';
-    document.getElementById('aqfsBtnOpen').style.display='';
     document.getElementById('aigenStatus').textContent=`✅ ${grade} — "${topic}" ready!`;
     aigenPushHistory(grade,topic,j);
   } catch(e){
