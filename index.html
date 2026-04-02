@@ -2089,6 +2089,24 @@ WHAT MAKES A GREAT BTC QUESTION — all of these must be present:
    - No preamble: "In this task you will..." is forbidden
    - Feels human, not generated. Sounds like a teacher talking, not a textbook.
 
+9. NUMBER SANITY — this is non-negotiable
+   - Every number in the scenario must be realistic for that real-world context. Ask yourself: would this actually happen?
+   - Prices: a coffee is ~$5, a pizza slice ~$3-4, a bus fare ~$2.75, a school lunch ~$3, a movie ticket ~$15
+   - Quantities: a classroom has 20-32 students, a recipe serves 4-8, a race is 100m or 5km not 73m
+   - Ages: middle school students are 11-14, high school 14-18 — never make a student 7 or 45
+   - Distances: a walk to school is 0.5-2 miles, a road trip is 200-400 miles
+   - Time: a sports game is 60-90 min, a school day is ~7 hours, a work shift is 4-8 hours
+   - The ANSWER must also be realistic — if the question asks how many people, the answer cannot be 0.7
+   - Choose numbers that produce clean, non-trivial results. A messy decimal answer is a design flaw unless the messiness is the mathematical point
+   - BEFORE finalising: mentally solve the problem and verify the answer makes sense in context
+
+10. SCENARIO RELEVANCE
+   - Use contexts middle/high school students actually encounter: food, sports, gaming, social media, money, school events, music, streaming, travel, part-time jobs
+   - Avoid adult-centric contexts: mortgages, business revenue, farming acreage, stock portfolios, insurance
+   - The setting should be immediately relatable — a student should picture it in under 2 seconds
+   - Named characters add life: use real-sounding first names that reflect a diverse classroom (not always Alex and Jordan)
+   - Concrete beats abstract every time: "a 12-inch pizza" beats "a circular object with diameter 12 inches"
+
 GRADE CALIBRATION:
 - Grades 1–2: concrete objects, small numbers, one genuine puzzle with multiple solutions
 - Grades 3–5: multi-step, still concrete, numbers under 1000, surprising results
@@ -2117,10 +2135,17 @@ Example 5 — Algebra 1 (Systems): Alex starts with $40 and saves $15 a week. Jo
 Example 6 — Geometry: A ladder 5 metres long leans against a wall with its base 1 metre from the wall. If you push the base out 1 more metre, how far does the top slide down?
 [Why it works: most students guess the top also moves 1 metre — it doesn't. The surprise drives investigation.]
 
+SELF-CHECK BEFORE OUTPUTTING:
+- Solve the problem yourself. Does the answer make sense in real life?
+- Are all numbers realistic for the scenario described?
+- Is the question genuinely one open problem, not a list of parts?
+- Would a group of students immediately have something to argue about?
+If any answer is no — rewrite before outputting.
+
 OUTPUT FORMAT — return exactly this JSON with no other text:
 {
   "question": "The full question in plain text. No bold, no markdown, no bullet points.",
-  "solution": "Step-by-step teacher solution with key answers and common approaches",
+  "solution": "Step-by-step teacher solution. Show the working. Confirm the final answer is realistic and makes sense in the context of the scenario.",
   "hints": ["Hint 1 — unsticks a group without giving it away", "Hint 2 — goes further for groups still stuck after Hint 1"],
   "extension": "A follow-up that deepens or generalises — delivered verbally by teacher to groups who finish",
   "btc_notes": "What makes this task work as a BTC question and what to watch for in the room"
