@@ -38,6 +38,14 @@
 
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9Q4M8CZK95"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-9Q4M8CZK95');
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1006,6 +1014,7 @@ function switchTab(name) {
   document.getElementById('tab-' + name).classList.add('active');
   document.querySelector(`[data-tab="${name}"]`).classList.add('active');
   if (name === 'picker') refreshPicker();
+  gtag('event', 'tab_view', { tab_name: name });
 }
 
 // ═══════════════════════ TEACHER MODE ═══════════════════════
@@ -1098,6 +1107,7 @@ function addSep() {
   if(pairExists(togethers,a,b)) return alert(`"${a}" and "${b}" are already a together rule.`);
   separations.push([a,b]);
   document.getElementById('sepA').value=''; document.getElementById('sepB').value='';
+  gtag('event', 'rule_added', { rule_type: 'separation' });
   render();
 }
 function removeSep(i) { separations.splice(i,1); render(); }
@@ -1110,6 +1120,7 @@ function addTog() {
   if(pairExists(separations,a,b)) return alert(`"${a}" and "${b}" are already a separation rule.`);
   togethers.push([a,b]);
   document.getElementById('togA').value=''; document.getElementById('togB').value='';
+  gtag('event', 'rule_added', { rule_type: 'together' });
   render();
 }
 function removeTog(i) { togethers.splice(i,1); render(); }
@@ -1171,6 +1182,7 @@ function generate() {
   }
   if(!groups) return showError('Could not satisfy all rules. Try more groups or fewer rules.');
   renderResults(groups);
+  gtag('event', 'groups_generated', { student_count: n, group_count: g });
 }
 function showError(msg) { const b=document.getElementById('errorBanner'); b.textContent=msg; b.style.display='block'; }
 
@@ -1315,6 +1327,7 @@ function openGroupsFs() {
   buildGrpfsGrid(lastGroups);
   document.getElementById('grpfsOverlay').classList.add('active');
   document.body.style.overflow='hidden';
+  gtag('event', 'fullscreen_opened', { tool: 'groups' });
 }
 function closeGroupsFs() {
   document.getElementById('grpfsOverlay').classList.remove('active');
@@ -1434,6 +1447,7 @@ function spinPicker() {
       if(fsBanner){ fsBanner.textContent=msg; fsBanner.style.display='block'; }
       btn.disabled=false; if(fsBtn) fsBtn.disabled=false;
       btn.textContent='🎲 Pick Again!'; if(fsBtn) fsBtn.textContent='🎲 Pick Again!';
+      gtag('event', 'name_picked', { tool: 'spinner', pool_size: pool.length });
       afterPick(winner);
     }
   }
@@ -1506,6 +1520,7 @@ function spinWheel(){
     if(btn){btn.disabled=false; btn.textContent='🎡 Spin Again!';}
     if(fsBtn){fsBtn.disabled=false; fsBtn.textContent='🎡 Spin Again!';}
     wheelSpinning=false;
+    gtag('event', 'name_picked', { tool: 'wheel', pool_size: pool.length });
     afterPick(winner);
     if(noRepeatMode) setTimeout(()=>{ const np=getPool(); drawWheel(np.length?np:students,wheelRotation,'wheelCanvas'); if(fsOvl.classList.contains('active')) drawWheel(np.length?np:students,wheelRotation,'wfsCanvas'); },1500);
   }
@@ -1519,6 +1534,7 @@ function openWheelFs(){
   renderPoolStatus();
   document.getElementById('wfsOverlay').classList.add('active'); document.body.style.overflow='hidden';
   const p=getPool(); setTimeout(()=>drawWheel(p.length?p:students,wheelRotation,'wfsCanvas'),50);
+  gtag('event', 'fullscreen_opened', { tool: 'wheel' });
 }
 function closeWheelFs(){ document.getElementById('wfsOverlay').classList.remove('active'); document.body.style.overflow=''; }
 
@@ -1682,6 +1698,7 @@ function openSwFs() {
   });
   document.getElementById('swfsOverlay').classList.add('active');
   document.body.style.overflow='hidden';
+  gtag('event', 'fullscreen_opened', { tool: 'stopwatch' });
 }
 function closeSwFs() {
   document.getElementById('swfsOverlay').classList.remove('active');
@@ -1714,6 +1731,7 @@ function cdPreset(m,s) {
   if(cdRunning) { cdRunning=false; clearInterval(cdInterval); document.getElementById('cdStartBtn').textContent='Start'; }
   document.getElementById('cdMinInput').value=m; document.getElementById('cdSecInput').value=s;
   cdInputChanged();
+  gtag('event', 'timer_preset_used', { timer: 'countdown', minutes: m, seconds: s });
 }
 function cdToggle() {
   if(cdRunning) {
@@ -1722,6 +1740,7 @@ function cdToggle() {
   } else {
     if(cdRemaining<=0) { cdReset(); return; }
     cdRunning=true;
+    gtag('event', 'timer_started', { timer: 'countdown' });
     document.getElementById('cdStartBtn').textContent='Pause';
     cdInterval=setInterval(()=>{
       cdRemaining--;
@@ -1763,13 +1782,14 @@ let gcTokenClient=null, gcAccessToken=null;
 function gcSignIn() {
   if(!window.google){alert('Google Sign-In still loading — try again.');return;}
   if(!gcTokenClient) gcTokenClient=google.accounts.oauth2.initTokenClient({client_id:GC_CLIENT_ID,scope:GC_SCOPES,callback:gcHandleToken});
+  gtag('event', 'gc_sign_in_attempt');
   gcTokenClient.requestAccessToken({prompt:'consent'});
 }
 async function gcHandleToken(r) {
   if(r.error){gcSetStatus('error','Sign-in failed: '+r.error);return;}
   gcAccessToken=r.access_token;
   let userName='your account', userPic='';
-  try { const p=await(await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+gcAccessToken}})).json(); userName=p.name||p.email||'your account'; userPic=p.picture||''; document.getElementById('gcUserName').textContent=userName; document.getElementById('gcAvatar').src=userPic; } catch(_){}
+  try { const p=await(await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+gcAccessToken}})).json(); userName=p.name||p.email||'your account'; userPic=p.picture||''; document.getElementById('gcUserName').textContent=userName; document.getElementById('gcAvatar').src=userPic; const emailDomain=(p.email||'').split('@')[1]||'unknown'; gtag('set','user_properties',{school_district:emailDomain}); gtag('event','district_identified',{email_domain:emailDomain}); } catch(_){}
   document.getElementById('gcNotSignedIn').style.display='none'; document.getElementById('gcSignedIn').style.display='block';
   gcSyncPanels(); gcSetStatus('loading','Loading your classes…'); gcLoadCourses();
 }
@@ -1804,7 +1824,7 @@ async function gcLoadRoster() {
       else if(fmt==='initial') n=parts.length>=2?parts[0]+' '+parts[1][0].toUpperCase()+'.':parts[0];
       if(addStudent(n)) added++; else skipped++;
     });
-    render(); gcSetStatus('success',`Added ${added} student${added!==1?'s':''} from "${cn}".`+(skipped>0?` (${skipped} skipped)`:''));
+    render(); gtag('event', 'gc_roster_loaded', { student_count: added }); gcSetStatus('success',`Added ${added} student${added!==1?'s':''} from "${cn}".`+(skipped>0?` (${skipped} skipped)`:''));
   } catch(e){gcSetStatus('error','Could not load students: '+e.message);}
   document.getElementById('gcLoadBtn').disabled=false;
 }
@@ -1880,6 +1900,7 @@ function rtbPreset(m,s){
   if(rtbRunning){clearInterval(rtbInterval);rtbRunning=false;rtbSyncBtns('Start');}
   rtbRemaining=m*60+s;
   rtbSyncDisplays(rtbRemaining);
+  gtag('event', 'timer_preset_used', { timer: 'rubric_timer', minutes: m, seconds: s });
 }
 function rtbToggle(){
   if(rtbRunning){
@@ -1887,7 +1908,7 @@ function rtbToggle(){
     rtbSyncBtns('Resume');
   } else {
     if(rtbRemaining<=0){rtbReset();return;}
-    rtbRunning=true; rtbSyncBtns('Pause');
+    rtbRunning=true; gtag('event', 'timer_started', { timer: 'rubric_timer' }); rtbSyncBtns('Pause');
     rtbInterval=setInterval(()=>{
       rtbRemaining--;
       rtbSyncDisplays(rtbRemaining);
@@ -1917,6 +1938,7 @@ function aqtPreset(m,s){
   aqtRemaining=m*60+s; aqtSyncDisplays(aqtRemaining);
   const mi=document.getElementById('aqtMinInput'); if(mi) mi.value=m;
   const si=document.getElementById('aqtSecInput'); if(si) si.value=String(s).padStart(2,'0');
+  gtag('event', 'timer_preset_used', { timer: 'question_timer', minutes: m, seconds: s });
 }
 function aqtInputChanged(){
   const m=parseInt(document.getElementById('aqtMinInput').value)||0;
@@ -1938,7 +1960,7 @@ function aqtToggle(){
     clearInterval(aqtInterval);aqtRunning=false;aqtSyncBtns('Resume');
   } else {
     if(aqtRemaining<=0){aqtReset();return;}
-    aqtRunning=true;aqtSyncBtns('Pause');
+    aqtRunning=true; gtag('event', 'timer_started', { timer: 'question_timer' }); aqtSyncBtns('Pause');
     aqtInterval=setInterval(()=>{
       aqtRemaining--;aqtSyncDisplays(aqtRemaining);
       if(aqtRemaining<=0){clearInterval(aqtInterval);aqtRunning=false;aqtSyncBtns('Start');cdBeep();}
@@ -1957,6 +1979,7 @@ function openAigenFs(){
   document.getElementById('aqfsStartBtn').textContent=aqtRunning?'Pause':(document.getElementById('aqtStartBtn').textContent||'Start');
   document.getElementById('aqfsOverlay').classList.add('active');
   document.body.style.overflow='hidden';
+  gtag('event', 'fullscreen_opened', { tool: 'question_generator' });
 }
 function closeAigenFs(){
   document.getElementById('aqfsOverlay').classList.remove('active');
@@ -1971,6 +1994,7 @@ function openRubricFs() {
   document.getElementById('rbfsStartBtn').textContent=rtbRunning?'Pause':document.getElementById('rtbStartBtn').textContent;
   document.getElementById('rbfsOverlay').classList.add('active');
   document.body.style.overflow='hidden';
+  gtag('event', 'fullscreen_opened', { tool: 'rubric' });
 }
 function closeRubricFs() {
   document.getElementById('rbfsOverlay').classList.remove('active');
@@ -1986,6 +2010,7 @@ function openTimerFs(){
   if(cdRunning){ tfsRunning=true; document.getElementById('tfsStartBtn').textContent='Pause'; tfsInterval=setInterval(tfsTick,1000); }
   document.getElementById('tfsOverlay').classList.add('active');
   document.body.style.overflow='hidden';
+  gtag('event', 'fullscreen_opened', { tool: 'countdown' });
 }
 function closeTimerFs(){
   clearInterval(tfsInterval); tfsRunning=false;
@@ -2183,6 +2208,7 @@ async function aigenGenerate(){
     });
     document.getElementById('aigenResult').style.display='block';
     document.getElementById('aigenStatus').textContent=`✅ ${grade} — "${topic}" ready!`;
+    gtag('event', 'question_generated', { grade: grade, topic: topic });
     aigenPushHistory(grade,topic,j);
   } catch(e){
     document.getElementById('aigenStatus').textContent=`❌ ${e.message}`;
@@ -2194,6 +2220,7 @@ let aigenHistory=[];
 function aigenCopyQuestion(){
   const q=document.getElementById('aigenQuestion').innerText.trim();
   if(!q) return;
+  gtag('event', 'question_copied');
   navigator.clipboard.writeText(q).then(()=>{
     const b=document.getElementById('aBtnCopy');
     b.textContent='✅ Copied!'; setTimeout(()=>b.textContent='📋 Copy question',2000);
@@ -2240,6 +2267,7 @@ function aigenToggle(s){
   const body=document.getElementById('aigenBody'+s);
   const open=body.classList.toggle('open');
   btn.classList.toggle('active',open);
+  gtag('event', 'aigen_section_toggled', { section: s, opened: open });
 }
 
 // ═══════════════════ PERSISTENCE ══════════════════════════
